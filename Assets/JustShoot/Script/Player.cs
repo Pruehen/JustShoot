@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
 
-public class Player : MonoBehaviour
+public class Player : SceneSingleton<Player>
 {
     [SerializeField] Animator animator;
 
@@ -17,22 +18,23 @@ public class Player : MonoBehaviour
 
     CharacterController cc;
 
-    [SerializeField] GameObject tpsVCam;
-    //CinemachineVirtualCamera tpsCmc;
-    [SerializeField] CinemachineVirtualCamera fpsVCam;
+    [SerializeField] GameObject tpsVCamRoot;
+    [SerializeField] CinemachineVirtualCamera tpsVCam;   
     [SerializeField] Transform weaponPoint;
-    [SerializeField] Transform firePoint;
-    [SerializeField] Transform shellPoint;
 
-    [Header("Prefabs")]
-    public GameObject bullet;
-    public GameObject bullet_Shell;
+    [Header("UsingWeapons")]
+    [SerializeField] Weapon[] weapons;
+    
+    Weapon controlweapon;
 
-    float fireDelay = 0;
-    float delayCount = 0.1f;
-    int shell = 100;
+    //float fireDelay = 0;
+    //float delayCount = 0.1f;
+    //int shell = 100;
 
     bool isReload = false;
+
+    float hp;
+    float maxHp = 100;
 
    // CinemachineImpulseSource impulseSource;
 
@@ -46,6 +48,10 @@ public class Player : MonoBehaviour
         //impulseSource = GetComponent<CinemachineImpulseSource>();
 
         SetCamType(false);
+
+        WeaponChange(0);
+
+        hp = maxHp;
     }
 
     // Update is called once per frame
@@ -54,8 +60,8 @@ public class Player : MonoBehaviour
         MoveOrder();//이동  
         RotateOrder();//캐릭터 및 총기 회전
 
-        fireDelay += Time.deltaTime;
-        GunFire();//무기 사용
+        WeaponSelect();
+        //GunFire();//무기 사용
         //Debug.Log(tpsVCam.transform.position);
     }
     private void LateUpdate()
@@ -76,9 +82,9 @@ public class Player : MonoBehaviour
     }
     void CamRotate()
     {
-        tpsVCam.transform.position = this.transform.position + new Vector3(0, 1.5f, 0);
+        tpsVCamRoot.transform.position = this.transform.position + new Vector3(0, 1.5f, 0);
 
-        Vector3 camAngle = tpsVCam.transform.rotation.eulerAngles;
+        Vector3 camAngle = tpsVCamRoot.transform.rotation.eulerAngles;
 
         
         if(isZoom)
@@ -98,9 +104,9 @@ public class Player : MonoBehaviour
         else
         {
             x = Mathf.Clamp(x, 345f, 361f);
-        }    
+        }
 
-        tpsVCam.transform.rotation = Quaternion.Euler(x, camAngle.y + mouseDeltaPos.x, camAngle.z);
+        tpsVCamRoot.transform.rotation = Quaternion.Euler(x, camAngle.y + mouseDeltaPos.x, camAngle.z);
         mouseDeltaPos *= 0.9f;
     }
     void RotateOrder()
@@ -121,45 +127,95 @@ public class Player : MonoBehaviour
     {
         if (isFps)
         {
-            fpsVCam.Priority = 11;
+            tpsVCam.Priority = 9;
         }
         else
         {
-            fpsVCam.Priority = 9;
+            tpsVCam.Priority = 11;
+        }
+    }
+    void WeaponSelect()
+    {
+        if (isReload == false)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                WeaponChange(0);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                WeaponChange(1);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                WeaponChange(2);
+            }
+        }
+    }
+    void WeaponChange(int index)
+    {
+        if(weapons.Length > index)
+        {
+            for (int i = 0; i < weapons.Length; i++)
+            {
+                if(index == i)
+                {
+                    weapons[i].gameObject.SetActive(true);
+                    controlweapon = weapons[i];
+                }
+                else
+                {
+                    weapons[i].gameObject.SetActive(false);
+                }
+            }
         }
     }
     void GunFire()
     {
-        if(fireDelay >= delayCount && isFire && shell > 0 && !isReload)
+        if(isFire)//버튼 좌클릭 입력이 감지되었을 경우 (좌클릭 하는 중인 경우)
         {
-            fireDelay = 0;
+            //fireDelay = 0;
 
-            GameObject bulletIst = ObjectPoolManager.Instance.DequeueObject(bullet);
-            bulletIst.transform.position = firePoint.position;
-            bulletIst.transform.rotation = firePoint.rotation;
+            //GameObject bulletIst = ObjectPoolManager.Instance.DequeueObject(bullet);
+            //bulletIst.transform.position = firePoint.position;
+            //bulletIst.transform.rotation = firePoint.rotation;
 
-            bulletIst.GetComponent<Rigidbody>().velocity = bulletIst.transform.forward * 500;
+            //bulletIst.GetComponent<Rigidbody>().velocity = bulletIst.transform.forward * 500;
 
-            EffectManager.Instance.FireEffectGenenate(firePoint.position, firePoint.rotation);
-            //impulseSource.GenerateImpulse(this.transform.position);
-            mouseDeltaPos = new Vector2(Random.Range(-1f, 1f), Random.Range(1f, 3f));
+            //EffectManager.Instance.FireEffectGenenate(firePoint.position, firePoint.rotation);
+            ////impulseSource.GenerateImpulse(this.transform.position);
+            //mouseDeltaPos = new Vector2(Random.Range(-1f, 1f), Random.Range(1f, 3f));
 
-            animator.SetTrigger("Fire");
-            shell--;
+            //animator.SetTrigger("Fire");
+            //shell--;
+
+            //Weapon클래스에서 발사 처리하는 것으로 변경
         }
     }
     void Reload()
     {
         animator.SetTrigger("Reload");
+        animator.SetFloat("ReloadSpeed", 4/controlweapon.GetReloadTime());
+        controlweapon.ReloedStart();
         StartCoroutine(ReloadEnd());
     }
     IEnumerator ReloadEnd()
     {
-        yield return new WaitForSeconds(3.2f);
+        yield return new WaitForSeconds(controlweapon.GetReloadTime());
         isReload = false;
+        controlweapon.ReloedEnd();
+        //shell += 100;
+        //shell = Mathf.Clamp(shell, 0, 101);
+    }
 
-        shell += 100;
-        shell = Mathf.Clamp(shell, 0, 101);
+    public void TakeDamage(float dmg)
+    {
+        hp -= dmg;
+        if(hp <= 0)
+        {
+            Debug.Log("플레이어 체력 0");
+            //사망 기능 추가
+        }
     }
 
     void OnMove(InputValue inputValue)//WASD 조작
@@ -185,7 +241,8 @@ public class Player : MonoBehaviour
         else//뗄 때
         {
             isFire = false;
-        }        
+        }
+        controlweapon.SetTrigger(isFire);
     }
     void OnRightClick(InputValue inputValue)//마우스 우클릭
     {
