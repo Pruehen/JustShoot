@@ -26,7 +26,7 @@ public class Player : MonoBehaviour
     //[SerializeField] Transform shellPoint;
 
     [Header("Prefabs")]
-    public GameObject bullet;
+    //public GameObject bullet;
     //public GameObject bullet_Shell;
 
     float fireDelay = 0;
@@ -55,7 +55,7 @@ public class Player : MonoBehaviour
         MoveOrder();//이동  
         RotateOrder();//캐릭터 및 총기 회전
 
-        fireDelay += Time.deltaTime;
+        fireDelay += Time.deltaTime;        
         GunFire();//무기 사용
         //Debug.Log(tpsVCam.transform.position);
     }
@@ -77,9 +77,9 @@ public class Player : MonoBehaviour
     }
     void CamRotate()
     {
-        tpsVCam.transform.position = this.transform.position + new Vector3(0, 1.5f, 0);
+        tpsVCamRoot.transform.position = this.transform.position + new Vector3(0, 1.5f, 0);
 
-        Vector3 camAngle = tpsVCam.transform.rotation.eulerAngles;
+        Vector3 camAngle = tpsVCamRoot.transform.rotation.eulerAngles;
 
         
         if(isZoom)
@@ -99,9 +99,9 @@ public class Player : MonoBehaviour
         else
         {
             x = Mathf.Clamp(x, 345f, 361f);
-        }    
+        }
 
-        tpsVCam.transform.rotation = Quaternion.Euler(x, camAngle.y + mouseDeltaPos.x, camAngle.z);
+        tpsVCamRoot.transform.rotation = Quaternion.Euler(x, camAngle.y + mouseDeltaPos.x, camAngle.z);
         mouseDeltaPos *= 0.9f;
     }
     void RotateOrder()

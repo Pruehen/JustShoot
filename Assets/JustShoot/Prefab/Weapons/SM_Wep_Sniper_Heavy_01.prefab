@@ -288,6 +288,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   firePoint: {fileID: 3103525776504040530}
   fpsViewPoint: {fileID: 346691312530040094}
+  projectilePrf: {fileID: 1003485616670832, guid: 2298236a23b5c4349b5f8204068aadf3, type: 3}
+  rpm: 60
+  fireCount: 1
+  burstDelay: 0
+  magazineBulletCount: 8
+  operability: 10
+  projectileVelocity: 1000
+  dmg: 200
+  recoil: 20
 --- !u!1 &1683238794451336
 GameObject:
   m_ObjectHideFlags: 0
