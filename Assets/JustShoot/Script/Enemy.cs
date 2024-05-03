@@ -4,6 +4,7 @@ using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour
 {
+    [SerializeField] protected Player player;
     public enum State
     {
         IDLE, TRACE, ATTACK, DIE
@@ -24,8 +25,11 @@ public class Enemy : MonoBehaviour
     readonly int hashTrace = Animator.StringToHash("IsTrace");
     readonly int hashAttack = Animator.StringToHash("IsAttack");
 
+    public float hp = 100f;
+
     private void Awake()
     {
+        playerTrf = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
         enemyTrf = GetComponent<Transform>();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
@@ -39,12 +43,12 @@ public class Enemy : MonoBehaviour
         agent.destination = playerTrf.position;
     }
 
-    private void Start()
+    protected virtual void Start()
     {
         StartCoroutine(CheckEnemyState());
     }
 
-    IEnumerator CheckEnemyState()
+    protected virtual IEnumerator CheckEnemyState()
     {
         while (!isDie)
         {
@@ -56,7 +60,7 @@ public class Enemy : MonoBehaviour
                 yield break;
             }
 
-            float distance = Vector3.Distance(playerTrf.position, this.transform.position);
+            float distance = Vector3.Distance(playerTrf.position, enemyTrf.position);
 
             if(distance <= attackDistance)
             {
