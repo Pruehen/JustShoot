@@ -373,7 +373,7 @@ MonoBehaviour:
   firePoint: {fileID: 4195299744274273693}
   fpsViewPoint: {fileID: 5987549416787596859}
   projectilePrf: {fileID: 1003485616670832, guid: 2298236a23b5c4349b5f8204068aadf3, type: 3}
-  rpm: 60
+  rpm: 120
   fireCount: 3
   burstDelay: 0.05
   magazineBulletCount: 30
