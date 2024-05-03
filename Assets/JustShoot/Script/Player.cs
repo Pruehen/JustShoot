@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
 
 public class Player : SceneSingleton<Player>
 {
@@ -24,13 +25,16 @@ public class Player : SceneSingleton<Player>
     [Header("UsingWeapons")]
     [SerializeField] Weapon[] weapons;
     
-    Weapon controlweapons;
+    Weapon controlweapon;
 
     //float fireDelay = 0;
     //float delayCount = 0.1f;
     //int shell = 100;
 
     bool isReload = false;
+
+    float hp;
+    float maxHp = 100;
 
    // CinemachineImpulseSource impulseSource;
 
@@ -46,6 +50,8 @@ public class Player : SceneSingleton<Player>
         SetCamType(false);
 
         WeaponChange(0);
+
+        hp = maxHp;
     }
 
     // Update is called once per frame
@@ -55,7 +61,7 @@ public class Player : SceneSingleton<Player>
         RotateOrder();//캐릭터 및 총기 회전
 
         WeaponSelect();
-        GunFire();//무기 사용
+        //GunFire();//무기 사용
         //Debug.Log(tpsVCam.transform.position);
     }
     private void LateUpdate()
@@ -130,17 +136,20 @@ public class Player : SceneSingleton<Player>
     }
     void WeaponSelect()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (isReload == false)
         {
-            WeaponChange(0);
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            WeaponChange(1);
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            WeaponChange(2);
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                WeaponChange(0);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                WeaponChange(1);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                WeaponChange(2);
+            }
         }
     }
     void WeaponChange(int index)
@@ -152,7 +161,7 @@ public class Player : SceneSingleton<Player>
                 if(index == i)
                 {
                     weapons[i].gameObject.SetActive(true);
-                    controlweapons = weapons[i];
+                    controlweapon = weapons[i];
                 }
                 else
                 {
@@ -186,16 +195,28 @@ public class Player : SceneSingleton<Player>
     void Reload()
     {
         animator.SetTrigger("Reload");
-        //StartCoroutine(ReloadEnd());
+        animator.SetFloat("ReloadSpeed", 4/controlweapon.GetReloadTime());
+        controlweapon.ReloedStart();
+        StartCoroutine(ReloadEnd());
     }
-    //IEnumerator ReloadEnd()
-    //{
-    //    //yield return new WaitForSeconds(3.2f);
-    //    //isReload = false;
+    IEnumerator ReloadEnd()
+    {
+        yield return new WaitForSeconds(controlweapon.GetReloadTime());
+        isReload = false;
+        controlweapon.ReloedEnd();
+        //shell += 100;
+        //shell = Mathf.Clamp(shell, 0, 101);
+    }
 
-    //    //shell += 100;
-    //    //shell = Mathf.Clamp(shell, 0, 101);
-    //}
+    public void TakeDamage(float dmg)
+    {
+        hp -= dmg;
+        if(hp <= 0)
+        {
+            Debug.Log("플레이어 체력 0");
+            //사망 기능 추가
+        }
+    }
 
     void OnMove(InputValue inputValue)//WASD 조작
     {
@@ -220,7 +241,8 @@ public class Player : SceneSingleton<Player>
         else//뗄 때
         {
             isFire = false;
-        }        
+        }
+        controlweapon.SetTrigger(isFire);
     }
     void OnRightClick(InputValue inputValue)//마우스 우클릭
     {
