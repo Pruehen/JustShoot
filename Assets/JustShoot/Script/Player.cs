@@ -33,16 +33,15 @@ public class Player : SceneSingleton<Player>
 
     bool isReload = false;
 
-    float hp;
-    float maxHp = 100;
+    Combat combat = new Combat();
 
    // CinemachineImpulseSource impulseSource;
 
     // Start is called before the first frame update
     void Start()
     {
-        Cursor.visible = false;
-
+        Cursor.lockState = CursorLockMode.Locked;
+        combat.Init(transform, 100f);
         //tpsCmc = tpsVCam.GetComponent<CinemachineVirtualCamera>();        
         cc = GetComponent<CharacterController>();
         //impulseSource = GetComponent<CinemachineImpulseSource>();
@@ -50,8 +49,6 @@ public class Player : SceneSingleton<Player>
         SetCamType(false);
 
         WeaponChange(0);
-
-        hp = maxHp;
     }
 
     // Update is called once per frame
@@ -210,12 +207,7 @@ public class Player : SceneSingleton<Player>
 
     public void TakeDamage(float dmg)
     {
-        hp -= dmg;
-        if(hp <= 0)
-        {
-            Debug.Log("플레이어 체력 0");
-            //사망 기능 추가
-        }
+        combat.TakeDamage(dmg);
     }
 
     void OnMove(InputValue inputValue)//WASD 조작
