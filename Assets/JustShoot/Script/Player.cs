@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player : MonoBehaviour
+public class Player : SceneSingleton<Player>
 {
     [SerializeField] Animator animator;
 
@@ -18,20 +18,17 @@ public class Player : MonoBehaviour
     CharacterController cc;
 
     [SerializeField] GameObject tpsVCamRoot;
-    [SerializeField] CinemachineVirtualCamera tpsVCam;
-    //CinemachineVirtualCamera tpsCmc;
-    //[SerializeField] CinemachineVirtualCamera fpsVCam;
+    [SerializeField] CinemachineVirtualCamera tpsVCam;   
     [SerializeField] Transform weaponPoint;
-    //[SerializeField] Transform firePoint;
-    //[SerializeField] Transform shellPoint;
 
-    [Header("Prefabs")]
-    //public GameObject bullet;
-    //public GameObject bullet_Shell;
+    [Header("UsingWeapons")]
+    [SerializeField] Weapon[] weapons;
+    
+    Weapon controlweapons;
 
-    float fireDelay = 0;
-    float delayCount = 0.1f;
-    int shell = 100;
+    //float fireDelay = 0;
+    //float delayCount = 0.1f;
+    //int shell = 100;
 
     bool isReload = false;
 
@@ -47,6 +44,8 @@ public class Player : MonoBehaviour
         //impulseSource = GetComponent<CinemachineImpulseSource>();
 
         SetCamType(false);
+
+        WeaponChange(0);
     }
 
     // Update is called once per frame
@@ -55,7 +54,7 @@ public class Player : MonoBehaviour
         MoveOrder();//이동  
         RotateOrder();//캐릭터 및 총기 회전
 
-        fireDelay += Time.deltaTime;        
+        WeaponSelect();
         GunFire();//무기 사용
         //Debug.Log(tpsVCam.transform.position);
     }
@@ -129,9 +128,42 @@ public class Player : MonoBehaviour
             tpsVCam.Priority = 11;
         }
     }
+    void WeaponSelect()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            WeaponChange(0);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            WeaponChange(1);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            WeaponChange(2);
+        }
+    }
+    void WeaponChange(int index)
+    {
+        if(weapons.Length > index)
+        {
+            for (int i = 0; i < weapons.Length; i++)
+            {
+                if(index == i)
+                {
+                    weapons[i].gameObject.SetActive(true);
+                    controlweapons = weapons[i];
+                }
+                else
+                {
+                    weapons[i].gameObject.SetActive(false);
+                }
+            }
+        }
+    }
     void GunFire()
     {
-        if(fireDelay >= delayCount && isFire && shell > 0 && !isReload)
+        if(isFire)//버튼 좌클릭 입력이 감지되었을 경우 (좌클릭 하는 중인 경우)
         {
             //fireDelay = 0;
 
@@ -154,16 +186,16 @@ public class Player : MonoBehaviour
     void Reload()
     {
         animator.SetTrigger("Reload");
-        StartCoroutine(ReloadEnd());
+        //StartCoroutine(ReloadEnd());
     }
-    IEnumerator ReloadEnd()
-    {
-        yield return new WaitForSeconds(3.2f);
-        isReload = false;
+    //IEnumerator ReloadEnd()
+    //{
+    //    //yield return new WaitForSeconds(3.2f);
+    //    //isReload = false;
 
-        shell += 100;
-        shell = Mathf.Clamp(shell, 0, 101);
-    }
+    //    //shell += 100;
+    //    //shell = Mathf.Clamp(shell, 0, 101);
+    //}
 
     void OnMove(InputValue inputValue)//WASD 조작
     {
