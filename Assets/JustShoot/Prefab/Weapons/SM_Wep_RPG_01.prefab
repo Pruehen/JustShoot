@@ -378,6 +378,7 @@ MonoBehaviour:
   projectileVelocity: 200
   dmg: 500
   recoil: 30
+  reloadTime: 4
 --- !u!1 &1798121333268980
 GameObject:
   m_ObjectHideFlags: 0
