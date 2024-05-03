@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Enemy : MonoBehaviour
+public abstract class Enemy : MonoBehaviour
 {
     [SerializeField] protected Player player;
     public enum State
@@ -24,12 +24,10 @@ public class Enemy : MonoBehaviour
 
     readonly int hashTrace = Animator.StringToHash("IsTrace");
     readonly int hashAttack = Animator.StringToHash("IsAttack");
-
-    public float hp = 100f;
-
     private void Awake()
     {
-        playerTrf = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
+        player = Player.Instance;
+        playerTrf = player.transform;
         enemyTrf = GetComponent<Transform>();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
@@ -77,7 +75,6 @@ public class Enemy : MonoBehaviour
         }
     }
 
-
     class BaseEnemyState : BaseState
     {
         protected Enemy owner;
@@ -117,9 +114,17 @@ public class Enemy : MonoBehaviour
         public AttackState(Enemy owner) : base(owner) { }
 
         public override void Enter()
-        {                        
+        {
             owner.animator.SetBool(owner.hashAttack, true);
-            Debug.Log("Shoot");
+        }
+    }
+    class DeadState : BaseEnemyState
+    {
+        public DeadState(Enemy owner) : base(owner) { }
+
+        public override void Enter()
+        {
+            Debug.Log("Dead");
         }
     }
 }
