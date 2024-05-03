@@ -833,7 +833,14 @@ ModelImporter:
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
-      events: []
+      events:
+      - time: 0.3727034
+        functionName: CloseDamageToPlayer
+        data: 
+        objectReferenceParameter: {fileID: 231396884492928626, guid: 0213c87e2fffb7c44b379f271ef4246e, type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       transformMask:
       - path: 
         weight: 1

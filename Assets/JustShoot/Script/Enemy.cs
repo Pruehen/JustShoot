@@ -29,6 +29,7 @@ public class Enemy : MonoBehaviour
 
     private void Awake()
     {
+        playerTrf = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
         enemyTrf = GetComponent<Transform>();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
@@ -42,7 +43,7 @@ public class Enemy : MonoBehaviour
         agent.destination = playerTrf.position;
     }
 
-    private void Start()
+    protected virtual void Start()
     {
         StartCoroutine(CheckEnemyState());
     }

@@ -4,14 +4,17 @@ using UnityEngine;
 
 public class CloseRangeEnemy : Enemy
 {
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
+        player = Player.Instance;
         Debug.Assert(player != null);// 플레이어나 널이면 경고
     }
 
     //적 공격 애니메이션에서 실행됨
-    public void CloseDamageToPlayer()
+    public void OnAimationAttak()
     {
+        //DealDamage
         float distance = Vector3.Distance(player.transform.position, transform.position);
         bool closeEnogh = distance <= attackDistance;
 

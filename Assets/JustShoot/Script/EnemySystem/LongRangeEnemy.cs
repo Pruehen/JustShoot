@@ -31,6 +31,9 @@ public class LongRangeEnemy : MonoBehaviour
 
     public float hp = 100f;
 
+    [SerializeField] Transform shootTransform;
+    [SerializeField] GameObject projectilePrefab;
+
     private void Awake()
     {
         enemyTrf = GetComponent<Transform>();
@@ -40,10 +43,14 @@ public class LongRangeEnemy : MonoBehaviour
         statemachine = gameObject.AddComponent<Statemachine>();
         statemachine.AddState(State.IDLE, new IdleState(this));
         statemachine.AddState(State.TRACE, new TraceState(this));
+        statemachine.AddState(State.Aim, new AimState(this));
         statemachine.AddState(State.ATTACK, new AttackState(this));
         statemachine.InitState(State.IDLE);
 
+        player = Player.Instance;
+        playerTrf = player.transform;
         agent.destination = playerTrf.position;
+
     }
 
     private void Start()
@@ -66,7 +73,7 @@ public class LongRangeEnemy : MonoBehaviour
             float distance = Vector3.Distance(playerTrf.position, enemyTrf.position);
             if(isAimed)
             {
-
+                statemachine.ChangeState(State.ATTACK);
             }
             else if (distance <= attackDistance)
             {
@@ -86,12 +93,13 @@ public class LongRangeEnemy : MonoBehaviour
     private void IsAimedPlayer()
     {
         //이거 재사용될 수 있음 fire 할때도 체크해야됨
-        Vector3 targetDir = (-transform.position + playerTrf.position).normalized;
-        transform.LookAt(targetDir);
+        Vector3 targetDir = (-transform.position + player.transform.position).normalized;
+        Debug.DrawLine(transform.position, transform.position + targetDir, Color.red, .1f);
+        transform.LookAt(player.transform.position);
         bool isAimed = Vector3.Dot(targetDir, transform.forward) >= .99f;
         if (isAimed)
         {
-            isAimed = true;
+            this.isAimed = true;
         }
     }
 
@@ -109,6 +117,19 @@ public class LongRangeEnemy : MonoBehaviour
         }
     }
 
+    public void OnAnimationAttack()
+    {
+        //FireProjectile
+
+        GameObject bulletIst = ObjectPoolManager.Instance.DequeueObject(projectilePrefab);
+        bulletIst.transform.position = shootTransform.position;
+        bulletIst.transform.rotation = shootTransform.rotation;
+
+        bulletIst.GetComponent<Rigidbody>().velocity = bulletIst.transform.forward * 500;
+
+        EffectManager.Instance.FireEffectGenenate(shootTransform.position, shootTransform.rotation);
+
+    }
 
     class BaseEnemyState : BaseState
     {
@@ -143,7 +164,23 @@ public class LongRangeEnemy : MonoBehaviour
             owner.animator.SetBool(owner.hashAttack, false);
         }
     }
+    class AimState : BaseEnemyState
+    {
+        public AimState(LongRangeEnemy owner) : base(owner) { }
 
+        public override void Enter()
+        {
+            owner.animator.SetBool(owner.hashAim, true);
+            Debug.Log("Aim");
+        }
+
+        public override void Update()
+        {
+            //플레이어 조준 완료시 state Aimed 조건을 설정함
+            owner.IsAimedPlayer();
+            //Todo: 사격거리가 충분히 가까우면 정지하기
+        }
+    }
     class AttackState : BaseEnemyState
     {
         public AttackState(LongRangeEnemy owner) : base(owner) { }
@@ -159,36 +196,15 @@ public class LongRangeEnemy : MonoBehaviour
             owner.IsAimedPlayer();
         }
     }
-    class AimState : BaseEnemyState
-    {
-        public AimState(LongRangeEnemy owner) : base(owner) { }
-
-        public override void Enter()
-        {
-            owner.animator.SetBool(owner.hashAim, true);
-            Debug.Log("Aim");
-        }
-
-        public override void Update()
-        {
-            //플레이어 조준 완료시 state Aimed 조건을 설정함
-            owner.IsAimedPlayer();
-        }
-    }
     class DeadState : BaseEnemyState
     {
         public DeadState(LongRangeEnemy owner) : base(owner) { }
 
         public override void Enter()
         {
-            owner.animator.SetBool(owner.hashAim, true);
-            Debug.Log("Aim");
-        }
-
-        public override void Update()
-        {
-            //플레이어 조준 완료시 state Aimed 조건을 설정함
-            owner.IsAimedPlayer();
+            //Todo:
+            //owner.animator.SetBool(owner.hashDead, true);
+            Debug.Log("Dead");
         }
     }
 }
