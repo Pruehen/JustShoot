@@ -61,7 +61,7 @@ public class Weapon : MonoBehaviour
             bulletIst.transform.position = firePoint.position;//좌표 지정
             bulletIst.transform.rotation = firePoint.rotation;//회전 지정
 
-            bulletIst.GetComponent<Bullet>().Init(dmg, projectileVelocity);//데미지, 탄속 지정
+            bulletIst.GetComponent<Bullet>().Init(dmg, projectileVelocity, 2);//데미지, 탄속 지정
 
             EffectManager.Instance.FireEffectGenenate(firePoint.position, firePoint.rotation);//발사 이펙트 생성
             //impulseSource.GenerateImpulse(this.transform.position);
