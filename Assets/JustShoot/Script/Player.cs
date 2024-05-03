@@ -17,16 +17,17 @@ public class Player : MonoBehaviour
 
     CharacterController cc;
 
-    [SerializeField] GameObject tpsVCam;
+    [SerializeField] GameObject tpsVCamRoot;
+    [SerializeField] CinemachineVirtualCamera tpsVCam;
     //CinemachineVirtualCamera tpsCmc;
-    [SerializeField] CinemachineVirtualCamera fpsVCam;
+    //[SerializeField] CinemachineVirtualCamera fpsVCam;
     [SerializeField] Transform weaponPoint;
-    [SerializeField] Transform firePoint;
-    [SerializeField] Transform shellPoint;
+    //[SerializeField] Transform firePoint;
+    //[SerializeField] Transform shellPoint;
 
     [Header("Prefabs")]
     public GameObject bullet;
-    public GameObject bullet_Shell;
+    //public GameObject bullet_Shell;
 
     float fireDelay = 0;
     float delayCount = 0.1f;
@@ -121,31 +122,33 @@ public class Player : MonoBehaviour
     {
         if (isFps)
         {
-            fpsVCam.Priority = 11;
+            tpsVCam.Priority = 9;
         }
         else
         {
-            fpsVCam.Priority = 9;
+            tpsVCam.Priority = 11;
         }
     }
     void GunFire()
     {
         if(fireDelay >= delayCount && isFire && shell > 0 && !isReload)
         {
-            fireDelay = 0;
+            //fireDelay = 0;
 
-            GameObject bulletIst = ObjectPoolManager.Instance.DequeueObject(bullet);
-            bulletIst.transform.position = firePoint.position;
-            bulletIst.transform.rotation = firePoint.rotation;
+            //GameObject bulletIst = ObjectPoolManager.Instance.DequeueObject(bullet);
+            //bulletIst.transform.position = firePoint.position;
+            //bulletIst.transform.rotation = firePoint.rotation;
 
-            bulletIst.GetComponent<Rigidbody>().velocity = bulletIst.transform.forward * 500;
+            //bulletIst.GetComponent<Rigidbody>().velocity = bulletIst.transform.forward * 500;
 
-            EffectManager.Instance.FireEffectGenenate(firePoint.position, firePoint.rotation);
-            //impulseSource.GenerateImpulse(this.transform.position);
-            mouseDeltaPos = new Vector2(Random.Range(-1f, 1f), Random.Range(1f, 3f));
+            //EffectManager.Instance.FireEffectGenenate(firePoint.position, firePoint.rotation);
+            ////impulseSource.GenerateImpulse(this.transform.position);
+            //mouseDeltaPos = new Vector2(Random.Range(-1f, 1f), Random.Range(1f, 3f));
 
-            animator.SetTrigger("Fire");
-            shell--;
+            //animator.SetTrigger("Fire");
+            //shell--;
+
+            //Weapon클래스에서 발사 처리하는 것으로 변경
         }
     }
     void Reload()
