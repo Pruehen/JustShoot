@@ -115,6 +115,7 @@ public class Enemy : MonoBehaviour
         public override void Enter()
         {                        
             owner.animator.SetBool(owner.hashAttack, true);
+            Debug.Log("Shoot");
         }
     }
 }
