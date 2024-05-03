@@ -6,7 +6,7 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     public ObjectPoolManager poolManager;
-    public Queue<GameObject> m_Queue;
+    public Queue<GameObject> m_Queue = new Queue<GameObject>();
 
     public GameObject[] prefabs;
     public float spawnTime = 10.0f;
