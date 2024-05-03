@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class LongRangeEnemy : MonoBehaviour
+public class LongRangeEnemy : MonoBehaviour, IDamagable
 {
     [SerializeField] protected Player player;
+    private Combat combat = new Combat();
     public enum State
     {
         IDLE, TRACE, Aim, ATTACK, DIE
@@ -29,8 +30,6 @@ public class LongRangeEnemy : MonoBehaviour
     readonly int hashAttack = Animator.StringToHash("IsAttack");
     readonly int hashAim = Animator.StringToHash("IsAim");
 
-    public float hp = 100f;
-
     [SerializeField] Transform shootTransform;
     [SerializeField] GameObject projectilePrefab;
 
@@ -45,12 +44,16 @@ public class LongRangeEnemy : MonoBehaviour
         statemachine.AddState(State.TRACE, new TraceState(this));
         statemachine.AddState(State.Aim, new AimState(this));
         statemachine.AddState(State.ATTACK, new AttackState(this));
+        statemachine.AddState(State.DIE, new DeadState(this));
         statemachine.InitState(State.IDLE);
+
+        combat.Init(transform, 60f);
 
         player = Player.Instance;
         playerTrf = player.transform;
         agent.destination = playerTrf.position;
 
+        combat.OnDead += Dead;
     }
 
     private void Start()
@@ -88,6 +91,7 @@ public class LongRangeEnemy : MonoBehaviour
                 statemachine.ChangeState(State.IDLE);
             }
         }
+        statemachine.ChangeState(State.DIE);
     }
 
     private void IsAimedPlayer()
@@ -105,16 +109,7 @@ public class LongRangeEnemy : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        if (isDie)
-        {
-            return;
-        }
-        hp-=damage;
-        if (hp <= 0f)
-        {
-            isDie = true;
-            //OnDead
-        }
+        combat.TakeDamage(damage);
     }
 
     public void OnAnimationAttack()
@@ -129,6 +124,10 @@ public class LongRangeEnemy : MonoBehaviour
 
         EffectManager.Instance.FireEffectGenenate(shootTransform.position, shootTransform.rotation);
 
+    }
+    private void Dead()
+    {
+        isDie = true;
     }
 
     class BaseEnemyState : BaseState
@@ -188,7 +187,6 @@ public class LongRangeEnemy : MonoBehaviour
         public override void Enter()
         {
             owner.animator.SetBool(owner.hashAttack, true);
-            Debug.Log("Shoot");
         }
         public override void Update()
         {
