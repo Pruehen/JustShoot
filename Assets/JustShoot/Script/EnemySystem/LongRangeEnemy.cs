@@ -120,7 +120,7 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
         bulletIst.transform.position = shootTransform.position;
         bulletIst.transform.rotation = shootTransform.rotation;
 
-        bulletIst.GetComponent<Rigidbody>().velocity = bulletIst.transform.forward * 500;
+        bulletIst.GetComponent<Rigidbody>().velocity = bulletIst.transform.forward * 10f;
 
         EffectManager.Instance.FireEffectGenenate(shootTransform.position, shootTransform.rotation);
 
@@ -169,8 +169,8 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
 
         public override void Enter()
         {
+            owner.animator.SetBool(owner.hashTrace, true);
             owner.animator.SetBool(owner.hashAim, true);
-            Debug.Log("Aim");
         }
 
         public override void Update()
