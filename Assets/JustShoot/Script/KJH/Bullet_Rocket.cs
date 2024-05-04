@@ -44,6 +44,12 @@ public class Bullet_Rocket : Bullet
 
         foreach (Collider hit in colliders)//콜라이더 순회
         {
+            Rigidbody targetRigidbody;
+            if(hit.gameObject.TryGetComponent<Rigidbody>(out targetRigidbody))
+            {
+                targetRigidbody.AddForce((hit.transform.position - center).normalized * 3, ForceMode.Impulse);
+            }
+
             if (hit.gameObject.CompareTag("Enemy"))
             {
                 hit.gameObject.GetComponent<IDamagable>().TakeDamage(baseDmg * (radius - (center - hit.transform.position).magnitude) / radius);//피해 가함. 거리에 따라 데미지가 선형적으로 감소
