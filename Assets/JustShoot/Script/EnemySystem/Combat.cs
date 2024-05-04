@@ -27,7 +27,6 @@ public class Combat
     public System.Action OnHeal { get; set; }
 
     public GameObject[] additionalEffectOnHit;
-    public bool noManaRegenOnHit = false;
     public Vector3 prevAttackersPos { get; internal set; }
     public void Init(Transform owner, float maxHp, bool defaultEffectOnDamaged = true)
     {
@@ -51,9 +50,9 @@ public class Combat
     {
         _maxHp = initalMaxHp + add;
     }
-    public void ResetHpWithRatio(float ratio)
+    public void ResetHp()
     {
-        _hp = _maxHp * ratio;
+        _hp = _maxHp;
         _dead = false;
     }
     public bool DealDamage(Combat target, float damage)
@@ -110,7 +109,6 @@ public class Combat
         prevAttackersPos = position;
         if (effectType != -1)
             EffectManager.Instance.HitEffectGenenate(position, effectType);
-        
         return true;
     }
     public void Heal(int v)
