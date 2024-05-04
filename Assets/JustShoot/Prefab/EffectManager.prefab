@@ -47,3 +47,4 @@ MonoBehaviour:
   bulletHitEffect: {fileID: 157586, guid: 22e130957bd0327478400151a245cc46, type: 3}
   bulletFireEffect: {fileID: 157586, guid: 2574ca206a571a342a7fab69fdfb87aa, type: 3}
   bloodEffect: {fileID: 166404, guid: 78e1c8c5b281b8b439229473779ac9aa, type: 3}
+  explosionEffect_s: {fileID: 1804206099813350, guid: 5ed0a013702bd9f42847584f2fba7b21, type: 3}
