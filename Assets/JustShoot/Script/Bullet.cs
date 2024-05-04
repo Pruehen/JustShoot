@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    protected float baseDmg;
-    protected float lifeTime;
+    public float baseDmg;
+    public float lifeTime;
 
     public virtual void Init(float dmg, float velocity, float lifeTime)//불릿의 데미지, 속도, 유지시간 초기화.
     {
@@ -35,7 +35,7 @@ public class Bullet : MonoBehaviour
         else if (collision.gameObject.CompareTag("Player"))//착탄한 대상의 태그가 Player일 경우, 이펙트를 피튀기는 이펙트로 변경
         {
             type = 1;
-            collision.gameObject.GetComponent<IDamagable>().TakeDamage(baseDmg);
+            Player.Instance.TakeDamage(baseDmg);
         }
         ProjectileDestroy(collision.contacts[0].point, type);//충돌 위치를 넘겨서 각종 처리를 하는 역할.
     }    
