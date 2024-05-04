@@ -15,7 +15,7 @@ public class Bullet : MonoBehaviour
     {
         int type = 0;
 
-        if (collision.gameObject.CompareTag("Enemy"))//착탄한 대상의 태그가 Enemy일 경우, 이펙트를 피튀기는 이펙트로 변경
+        if (collision.gameObject.CompareTag("Enemy"))//착탄한 대상의 태그가 Enemy일 경우, 이펙트를 피튀기는 이펙트로 변경, 데미지 적용
         {
             type = 1;
             collision.gameObject.GetComponent<IDamagable>().TakeDamage(dmg);
