@@ -7,7 +7,7 @@ public class Bullet : MonoBehaviour
     protected float baseDmg;
     protected float lifeTime;
 
-    public void Init(float dmg, float velocity, float lifeTime)//불릿의 데미지, 속도, 유지시간 초기화.
+    public virtual void Init(float dmg, float velocity, float lifeTime)//불릿의 데미지, 속도, 유지시간 초기화.
     {
         this.baseDmg = dmg;
         this.lifeTime = lifeTime;
