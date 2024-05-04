@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using UnityEngine;
 
+[System.Serializable]
 public class PlayerCombat : Combat
 {
     private int killCount = 0;
@@ -17,5 +19,13 @@ public class PlayerCombat : Combat
     {
         killCount++;
         Debug.Log("addKillCount");
+    }
+    public int GetKillCount()
+    {
+        return killCount;
+    }
+    public float GetDealCount()
+    {
+        return dealCount;
     }
 }
