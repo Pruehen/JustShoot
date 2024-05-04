@@ -20,12 +20,12 @@ public class Bullet_Grenade : Bullet
     {
         EffectManager.Instance.ExplosionEffectGenerate(hitPosition, 1);
 
-        for (int i = 0; i < 30; i++)
+        for (int i = 0; i < 100; i++)
         {
             GameObject frag = ObjectPoolManager.Instance.DequeueObject(fragPrf);
             frag.transform.position = hitPosition + new Vector3(0, 1, 0);
             frag.transform.rotation = Quaternion.Euler(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
-            frag.GetComponent<Bullet>().Init(baseDmg * 0.02f, 100, 0.2f);
+            frag.GetComponent<Bullet>().Init(baseDmg * 0.01f, 100, 0.2f);
         }
 
         ObjectPoolManager.Instance.EnqueueObject(this.gameObject);
