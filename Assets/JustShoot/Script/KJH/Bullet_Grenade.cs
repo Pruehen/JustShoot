@@ -19,6 +19,7 @@ public class Bullet_Grenade : Bullet
     void ProjectileDestroy(Vector3 hitPosition, int type)
     {
         EffectManager.Instance.ExplosionEffectGenerate(hitPosition, 1);
+        SplashDamage(hitPosition, 10);
 
         for (int i = 0; i < 100; i++)
         {
@@ -29,5 +30,18 @@ public class Bullet_Grenade : Bullet
         }
 
         ObjectPoolManager.Instance.EnqueueObject(this.gameObject);
+    }
+
+    void SplashDamage(Vector3 center, float radius)
+    {
+        Collider[] colliders = Physics.OverlapSphere(center, radius);//모든 콜라이더 검출
+
+        foreach (Collider hit in colliders)//콜라이더 순회
+        {
+            if (hit.gameObject.CompareTag("Enemy"))
+            {
+                hit.gameObject.GetComponent<IDamagable>().TakeDamage(baseDmg * (radius - (center - hit.transform.position).magnitude)/radius);//피해 가함. 거리에 따라 데미지가 선형적으로 감소
+            }
+        }
     }
 }
