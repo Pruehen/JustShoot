@@ -375,7 +375,7 @@ MonoBehaviour:
   burstDelay: 0
   magazineBulletCount: 1
   operability: 10
-  projectileVelocity: 200
+  projectileVelocity: 100
   dmg: 500
   recoil: 30
   reloadTime: 4
