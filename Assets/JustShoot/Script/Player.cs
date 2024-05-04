@@ -33,7 +33,7 @@ public class Player : SceneSingleton<Player>
 
     bool isReload = false;
 
-    Combat combat = new Combat();
+    public Combat combat = new Combat();
 
    // CinemachineImpulseSource impulseSource;
 
@@ -49,6 +49,9 @@ public class Player : SceneSingleton<Player>
         SetCamType(false);
 
         WeaponChange(0);
+
+        combat.OnDamaged += HitAnimPlay;
+        combat.OnDead += DieAnimPlay;
     }
 
     // Update is called once per frame
@@ -264,5 +267,15 @@ public class Player : SceneSingleton<Player>
             isReload = true;
             Reload();
         }
+    }
+
+    //combat에 이벤트 등록
+    private void HitAnimPlay()
+    {
+        animator.SetTrigger("Hit");
+    }
+    private void DieAnimPlay()
+    {
+        animator.SetTrigger("Die");
     }
 }
