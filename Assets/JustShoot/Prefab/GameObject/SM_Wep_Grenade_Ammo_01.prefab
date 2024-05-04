@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1730321937067149984}
   - component: {fileID: 2611069512506973774}
   - component: {fileID: 1015943270541624991}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SM_Wep_Grenade_Ammo_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
