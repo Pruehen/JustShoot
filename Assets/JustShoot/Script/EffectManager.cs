@@ -8,6 +8,7 @@ public class EffectManager : SceneSingleton<EffectManager>
     public GameObject bulletFireEffect;
     public GameObject bloodEffect;
     public GameObject explosionEffect_s;
+    public GameObject explosionEffect_l;
 
     public void HitEffectGenenate(Vector3 position, int type)
     {
@@ -38,11 +39,20 @@ public class EffectManager : SceneSingleton<EffectManager>
     }
     public void ExplosionEffectGenerate(Vector3 position, float size)
     {
-        GameObject item = ObjectPoolManager.Instance.DequeueObject(explosionEffect_s);
-        item.transform.position = position;
-        item.transform.rotation = Quaternion.identity;
-
-        StartCoroutine(EnqueueObject(item, 3));
+        if (size == 1)
+        {
+            GameObject item = ObjectPoolManager.Instance.DequeueObject(explosionEffect_s);
+            item.transform.position = position;
+            item.transform.rotation = Quaternion.identity;
+            StartCoroutine(EnqueueObject(item, 3));
+        }
+        else
+        {
+            GameObject item = ObjectPoolManager.Instance.DequeueObject(explosionEffect_l);
+            item.transform.position = position;
+            item.transform.rotation = Quaternion.identity;
+            StartCoroutine(EnqueueObject(item, 5));
+        }
     }
 
     IEnumerator EnqueueObject(GameObject item, float time)
