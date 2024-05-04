@@ -20,7 +20,8 @@ public class Combat
     private bool _defalutEffectOnDamaged;
 
     public System.Action OnDamaged { get; set; }
-    public System.Action<Combat> OnDamagedWAttacker { get; set; }
+    public System.Action<float> OnDamagedWDamage { get; set; }
+    public System.Action<Combat> OnDealWTarget { get; set; }
     public System.Action OnDead { get; set; }
     //추가적인 조건 체크 후 false면 데미지 적용 안함
     public System.Func<bool> AdditionalDamageableCondition { get; set; }
@@ -57,10 +58,10 @@ public class Combat
     }
     public bool DealDamage(Combat target, float damage)
     {
-        bool isAttackSucceeded = target.TakeDamage(_owner.transform.position, damage);
+        bool isAttackSucceeded = target.TakeDamage(damage);
         if (isAttackSucceeded)
         {
-            OnDamagedWAttacker?.Invoke(target);
+            OnDealWTarget?.Invoke(target);
             return false;
         }
         return true;
@@ -86,11 +87,15 @@ public class Combat
         }
         return true;
     }
+
     private void CalcTakeDamage(float damage)
     {
-        _prevHitTime = Time.time;
+        _prevHitTime = Time.time; 
+        damage = Mathf.Min(damage, _hp);//hp 0이하의 데미지를 주지 못하게
+
         _hp -= damage;
         OnDamaged?.Invoke();
+        OnDamagedWDamage?.Invoke(damage);
         if (_hp <= 0f)
         {
             _dead = true;
@@ -124,7 +129,7 @@ public class Combat
     }
     public void Die()
     {
-        TakeDamage(_owner.position, _hp);
+        TakeDamage(_hp);
     }
     public bool IsDead()
     {
