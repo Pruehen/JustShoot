@@ -6,9 +6,10 @@ using UnityEngine.AI;
 public class CloseRangeEnemy : MonoBehaviour, IDamagable
 {
     [SerializeField] protected Player player;
+    private Combat combat = new Combat();
     public enum State
     {
-        IDLE, TRACE, ATTACK, Dead
+        IDLE, TRACE, ATTACK, DEAD
     }
     public State state = State.IDLE;
 
@@ -22,7 +23,6 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
     NavMeshAgent agent;
     Animator animator;
     Statemachine statemachine;
-    private Combat combat = new Combat();
 
     readonly int hashTrace = Animator.StringToHash("IsTrace");
     readonly int hashAttack = Animator.StringToHash("IsAttack");
@@ -41,15 +41,13 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
         statemachine.AddState(State.IDLE, new IdleState(this));
         statemachine.AddState(State.TRACE, new TraceState(this));
         statemachine.AddState(State.ATTACK, new AttackState(this));
-        statemachine.AddState(State.Dead, new DeadState(this));
+        statemachine.AddState(State.DEAD, new DeadState(this));
         statemachine.InitState(State.IDLE);
 
         agent.destination = playerTrf.position;
     }
     private void Start()
     {
-        player = Player.Instance;
-        Debug.Assert(player != null);// 플레이어나 널이면 경고
         combat.Init(transform, 100f);
 
         combat.OnDamaged += PlayHitAnim;
@@ -65,9 +63,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
         {
             yield return new WaitForSeconds(0.3f);
 
-
             float distance = Vector3.Distance(playerTrf.position, enemyTrf.position);
-
             if (distance <= attackDistance)
             {
                 statemachine.ChangeState(State.ATTACK);
@@ -81,11 +77,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
                 statemachine.ChangeState(State.IDLE);
             }
         }
-        if (isDie)
-        {
-            statemachine.ChangeState(State.Dead);
-            yield break;
-        }
+        statemachine.ChangeState(State.DEAD);
     }
 
     //적 공격 애니메이션에서 실행됨
@@ -105,6 +97,9 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
         {
             //플레이어에게 데미지 추가
             player.TakeDamage(10f);
+            int type = 1;
+            Vector3 hitPosition = player.transform.position;
+            EffectManager.Instance.HitEffectGenenate(hitPosition, type);//착탄 이펙트 발생
         }
     }
     public void TakeDamage(float damage)

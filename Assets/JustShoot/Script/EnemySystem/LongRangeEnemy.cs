@@ -9,11 +9,11 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
     private Combat combat = new Combat();
     public enum State
     {
-        IDLE, TRACE, Aim, ATTACK, DIE
+        IDLE, TRACE, ATTACK, DEAD
     }
     public State state = State.IDLE;
 
-    public bool isAimed = false;
+    public bool isAimeAligned = false;
 
     public float traceDistance = 10;
     public float attackDistance = 2;
@@ -28,13 +28,17 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
 
     readonly int hashTrace = Animator.StringToHash("IsTrace");
     readonly int hashAttack = Animator.StringToHash("IsAttack");
-    readonly int hashAim = Animator.StringToHash("IsAim");
+    readonly int hashHit = Animator.StringToHash("Hit");
+    readonly int hashMoving = Animator.StringToHash("IsMoving");
+    readonly int hashDead = Animator.StringToHash("Dead");
 
     [SerializeField] Transform shootTransform;
     [SerializeField] GameObject projectilePrefab;
 
     private void Awake()
     {
+        player = Player.Instance;
+        playerTrf = player.transform;
         enemyTrf = GetComponent<Transform>();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
@@ -42,22 +46,20 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
         statemachine = gameObject.AddComponent<Statemachine>();
         statemachine.AddState(State.IDLE, new IdleState(this));
         statemachine.AddState(State.TRACE, new TraceState(this));
-        statemachine.AddState(State.Aim, new AimState(this));
         statemachine.AddState(State.ATTACK, new AttackState(this));
-        statemachine.AddState(State.DIE, new DeadState(this));
+        statemachine.AddState(State.DEAD, new DeadState(this));
         statemachine.InitState(State.IDLE);
 
-        combat.Init(transform, 60f);
-
-        player = Player.Instance;
-        playerTrf = player.transform;
         agent.destination = playerTrf.position;
 
-        combat.OnDead += Dead;
     }
 
     private void Start()
     {
+        combat.Init(transform, 60f);
+
+        combat.OnDead += Dead;
+
         StartCoroutine(CheckEnemyState());
     }
 
@@ -67,20 +69,10 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
         {
             yield return new WaitForSeconds(0.3f);
 
-            if (state == State.DIE)
-            {
-                statemachine.ChangeState(State.DIE);
-                yield break;
-            }
-
             float distance = Vector3.Distance(playerTrf.position, enemyTrf.position);
-            if(isAimed)
+            if (distance <= attackDistance && IsTargetVisible())
             {
                 statemachine.ChangeState(State.ATTACK);
-            }
-            else if (distance <= attackDistance)
-            {
-                statemachine.ChangeState(State.Aim);
             }
             else if (distance <= traceDistance)
             {
@@ -91,25 +83,7 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
                 statemachine.ChangeState(State.IDLE);
             }
         }
-        statemachine.ChangeState(State.DIE);
-    }
-
-    private void IsAimedPlayer()
-    {
-        //이거 재사용될 수 있음 fire 할때도 체크해야됨
-        Vector3 targetDir = (-transform.position + player.transform.position).normalized;
-        Debug.DrawLine(transform.position, transform.position + targetDir, Color.red, .1f);
-        transform.LookAt(player.transform.position);
-        bool isAimed = Vector3.Dot(targetDir, transform.forward) >= .99f;
-        if (isAimed)
-        {
-            this.isAimed = true;
-        }
-    }
-
-    public void TakeDamage(float damage)
-    {
-        combat.TakeDamage(damage);
+        statemachine.ChangeState(State.DEAD);
     }
 
     public void OnAnimationAttack()
@@ -120,10 +94,44 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
         bulletIst.transform.position = shootTransform.position;
         bulletIst.transform.rotation = shootTransform.rotation;
 
-        bulletIst.GetComponent<Rigidbody>().velocity = bulletIst.transform.forward * 10f;
+        float initialSpeed = 10f;
+
+        Vector3 velocityForIntecept = ProjectileCalc.CalculateInitialVelocity(Player.Instance.transform, shootTransform, initialSpeed, Vector3.up);
+        bulletIst.GetComponent<Rigidbody>().velocity = velocityForIntecept;
 
         EffectManager.Instance.FireEffectGenenate(shootTransform.position, shootTransform.rotation);
 
+    }
+    private bool IsTargetVisible()
+    {
+        Vector3 targetDir = (shootTransform.position + player.transform.position).normalized;
+        float dist = Vector3.Distance(shootTransform.position , player.transform.position);
+        Vector3 targetPos = player.transform.position;
+        Vector3 originPos = shootTransform.position + targetDir;
+
+
+        //bool isAimeAligned = Vector3.Dot(targetDir, transform.forward) >= .99f;
+        //if (isAimeAligned)
+        //{
+        //    this.isAimeAligned = true;
+        //}
+
+        Ray sightRay = new Ray(originPos, targetDir);
+        Physics.Raycast(sightRay, out RaycastHit hit, dist);
+            
+
+        if(hit.collider == null || hit.collider.CompareTag("Player"))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public void TakeDamage(float damage)
+    {
+        combat.TakeDamage(damage);
     }
     private void Dead()
     {
@@ -157,27 +165,10 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
         public override void Enter()
         {
             owner.agent.SetDestination(owner.playerTrf.position);
-
             owner.agent.isStopped = false;
+
             owner.animator.SetBool(owner.hashTrace, true);
             owner.animator.SetBool(owner.hashAttack, false);
-        }
-    }
-    class AimState : BaseEnemyState
-    {
-        public AimState(LongRangeEnemy owner) : base(owner) { }
-
-        public override void Enter()
-        {
-            owner.animator.SetBool(owner.hashTrace, true);
-            owner.animator.SetBool(owner.hashAim, true);
-        }
-
-        public override void Update()
-        {
-            //플레이어 조준 완료시 state Aimed 조건을 설정함
-            owner.IsAimedPlayer();
-            //Todo: 사격거리가 충분히 가까우면 정지하기
         }
     }
     class AttackState : BaseEnemyState
@@ -186,12 +177,15 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
 
         public override void Enter()
         {
+            owner.agent.isStopped = true;
+
+            owner.animator.SetBool(owner.hashTrace, true);
             owner.animator.SetBool(owner.hashAttack, true);
         }
         public override void Update()
         {
             //플레이어 조준 완료시 state Aimed 조건을 설정함
-            owner.IsAimedPlayer();
+            owner.IsTargetVisible();
         }
     }
     class DeadState : BaseEnemyState
