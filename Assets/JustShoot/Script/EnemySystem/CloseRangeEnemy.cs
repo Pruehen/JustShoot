@@ -8,7 +8,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
     [SerializeField] protected Player player;
     public enum State
     {
-        IDLE, TRACE, ATTACK, DIE
+        IDLE, TRACE, ATTACK, Dead
     }
     public State state = State.IDLE;
 
@@ -27,6 +27,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
     readonly int hashTrace = Animator.StringToHash("IsTrace");
     readonly int hashAttack = Animator.StringToHash("IsAttack");
     readonly int hashHit = Animator.StringToHash("Hit");
+    readonly int hashMoving = Animator.StringToHash("IsMoving");
     readonly int hashDead = Animator.StringToHash("Dead");
     private void Awake()
     {
@@ -40,9 +41,23 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
         statemachine.AddState(State.IDLE, new IdleState(this));
         statemachine.AddState(State.TRACE, new TraceState(this));
         statemachine.AddState(State.ATTACK, new AttackState(this));
+        statemachine.AddState(State.Dead, new DeadState(this));
         statemachine.InitState(State.IDLE);
 
         agent.destination = playerTrf.position;
+    }
+    private void Start()
+    {
+        player = Player.Instance;
+        Debug.Assert(player != null);// 플레이어나 널이면 경고
+        combat.Init(transform, 100f);
+
+        combat.OnDamaged += PlayHitAnim;
+        combat.OnDamagedWDamage += Player.Instance.combat.AddDealCount;
+        combat.OnDead += Player.Instance.combat.AddKillCount;
+        combat.OnDead += Dead;
+
+        StartCoroutine(CheckEnemyState());
     }
     protected virtual IEnumerator CheckEnemyState()
     {
@@ -50,11 +65,6 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
         {
             yield return new WaitForSeconds(0.3f);
 
-            if (state == State.DIE)
-            {
-                statemachine.ChangeState(State.DIE);
-                yield break;
-            }
 
             float distance = Vector3.Distance(playerTrf.position, enemyTrf.position);
 
@@ -70,6 +80,11 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
             {
                 statemachine.ChangeState(State.IDLE);
             }
+        }
+        if (isDie)
+        {
+            statemachine.ChangeState(State.Dead);
+            yield break;
         }
     }
 
@@ -94,17 +109,19 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
     }
     public void TakeDamage(float damage)
     {
-        if(combat.TakeDamage(damage))
+        if (combat.TakeDamage(damage))
         {
             animator.SetTrigger(hashHit);
         }
+    }
+    private void PlayHitAnim()
+    {
+        animator.SetTrigger(hashHit);
     }
     private void Dead()
     {
         isDie = true;
     }
-
-
     class BaseEnemyState : BaseState
     {
         protected CloseRangeEnemy owner;
@@ -137,6 +154,19 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
             owner.animator.SetBool(owner.hashTrace, true);
             owner.animator.SetBool(owner.hashAttack, false);
         }
+        public override void Update()
+        {
+            bool moving = owner.agent.velocity.magnitude >= .01f;
+            if (moving)
+            {
+                owner.animator.SetBool(owner.hashMoving, true);
+            }
+            else
+            {
+                owner.animator.SetBool(owner.hashMoving, false);
+            }
+
+        }
     }
 
     class AttackState : BaseEnemyState
@@ -147,6 +177,19 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
         {
             owner.animator.SetBool(owner.hashAttack, true);
         }
+        public override void Update()
+        {
+            bool moving = owner.agent.velocity.magnitude >= .01f;
+            if (moving)
+            {
+                owner.animator.SetBool(owner.hashMoving, true);
+            }
+            else
+            {
+                owner.animator.SetBool(owner.hashMoving, false);
+            }
+
+        }
     }
     class DeadState : BaseEnemyState
     {
@@ -154,17 +197,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
 
         public override void Enter()
         {
-            Debug.Log("Dead");
+            owner.animator.SetTrigger(owner.hashDead);
         }
-    }
-    private void Start()
-    {
-        player = Player.Instance;
-        Debug.Assert(player != null);// 플레이어나 널이면 경고
-        combat.Init(transform, 100f);
-
-        combat.OnDead += Dead;
-
-        StartCoroutine(CheckEnemyState());
     }
 }
