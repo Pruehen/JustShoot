@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Bullet_Rocket : Bullet
 {
+    [SerializeField] ParticleSystem particleSystem;
     Rigidbody rigidbody;
     float velocity;
     public override void Init(float dmg, float velocity, float lifeTime)//불릿의 데미지, 속도, 유지시간 초기화.
@@ -11,8 +12,28 @@ public class Bullet_Rocket : Bullet
         this.baseDmg = dmg;
         this.lifeTime = lifeTime;
         rigidbody = GetComponent<Rigidbody>();
+        rigidbody.velocity = Vector3.zero;
         this.velocity = velocity;
+        particleSystem.transform.parent = this.transform;
+        particleSystem.transform.position = this.transform.position;
+        particleSystem.transform.rotation = this.transform.rotation;
+        particleSystem.Play();
     }
+
+    IEnumerator ParticleDestroy()
+    {
+        // 파티클이 재생되는 동안 오브젝트가 삭제되어도 파티클이 사라지지 않도록 설정합니다.
+        particleSystem.transform.parent = null;
+        particleSystem.Stop();
+
+        // 파티클 재생이 끝날 때까지 기다립니다.
+        yield return new WaitUntil(() => particleSystem.isStopped);
+
+        particleSystem.transform.parent = this.transform;
+        particleSystem.transform.position = this.transform.position;
+        particleSystem.transform.rotation = this.transform.rotation;
+    }
+
 
     private void FixedUpdate()
     {
@@ -34,6 +55,7 @@ public class Bullet_Rocket : Bullet
     {
         EffectManager.Instance.ExplosionEffectGenerate(hitPosition, 2);
         SplashDamage(hitPosition, 10);
+        StartCoroutine(ParticleDestroy());
 
         ObjectPoolManager.Instance.EnqueueObject(this.gameObject);
     }
