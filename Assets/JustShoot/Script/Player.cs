@@ -14,6 +14,8 @@ public class Player : SceneSingleton<Player>
     bool isFire = false;
     bool isZoom = false;
     Vector2 mouseDeltaPos = Vector2.zero;
+    float senst;//카메라 감도
+    int controlWeaponIndex;
 
     CharacterController cc;
 
@@ -47,10 +49,13 @@ public class Player : SceneSingleton<Player>
 
         SetCamType(false);
 
-        WeaponChange(0);
+        controlWeaponIndex = 0;
+        WeaponChange(controlWeaponIndex);
 
         combat.OnDamaged += HitAnimPlay;
         combat.OnDead += DieAnimPlay;
+
+        senst = 1;
     }
 
     // Update is called once per frame
@@ -88,11 +93,11 @@ public class Player : SceneSingleton<Player>
         
         if(isZoom)
         {
-            mouseDeltaPos *= 0.2f;
+            mouseDeltaPos *= 0.2f * senst;
         }
         else
         {
-            mouseDeltaPos *= 0.4f;
+            mouseDeltaPos *= 0.4f * senst;
         }
 
         float x = camAngle.x - mouseDeltaPos.y;
@@ -161,6 +166,7 @@ public class Player : SceneSingleton<Player>
                 {
                     weapons[i].gameObject.SetActive(true);
                     controlweapon = weapons[i];
+                    controlWeaponIndex = index;
                 }
                 else
                 {
@@ -268,6 +274,21 @@ public class Player : SceneSingleton<Player>
         }
     }
 
+    public PlayerCombatData GetCombatData()
+    {
+        PlayerCombatData data = new PlayerCombatData();
+        data.playerMaxHp = combat.GetMaxHp();
+        data.playerCurHp = combat.GetHp();
+        data.controlWeaponName = controlweapon.gameObject.name;
+        data.controlWeaponIndex = controlWeaponIndex;
+        data.cwMaxMag = controlweapon.magazineBulletCount;
+        data.cwCurMag = controlweapon.bullet;
+        data.killCount = combat.GetKillCount();
+
+        return data;
+    }
+
+
     //combat에 이벤트 등록
     private void HitAnimPlay()
     {
@@ -277,4 +298,15 @@ public class Player : SceneSingleton<Player>
     {
         animator.SetTrigger("Die");
     }
+}
+
+public struct PlayerCombatData//참조용 데이터 구조체
+{
+    public float playerMaxHp;//최대 체력
+    public float playerCurHp;//현재 체력
+    public string controlWeaponName;//사용중인 무기 이름
+    public int controlWeaponIndex;//사용중인 무기 인덱스
+    public int cwMaxMag;//사용중인 무기 최대 장탄량
+    public int cwCurMag;//사용중인 무기 현재 장탄량
+    public int killCount;//킬수
 }
