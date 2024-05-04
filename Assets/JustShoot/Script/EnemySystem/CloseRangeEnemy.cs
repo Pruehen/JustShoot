@@ -1,18 +1,76 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//Todo: longrange처럼 다 새로 만드는게 나을수도
-public class CloseRangeEnemy : Enemy, IDamagable
-{
-    private Combat combat = new Combat();
-    protected override void Start()
-    {
-        base.Start();
-        player = Player.Instance;
-        Debug.Assert(player != null);// 플레이어나 널이면 경고
-        combat.Init(transform, 100f);
+using UnityEngine.AI;
 
-        combat.OnDead += Dead;
+public class CloseRangeEnemy : MonoBehaviour, IDamagable
+{
+    [SerializeField] protected Player player;
+    public enum State
+    {
+        IDLE, TRACE, ATTACK, DIE
+    }
+    public State state = State.IDLE;
+
+    public float traceDistance = 10;
+    public float attackDistance = 2;
+
+    public bool isDie = false;
+
+    Transform enemyTrf;
+    [SerializeField] Transform playerTrf;
+    NavMeshAgent agent;
+    Animator animator;
+    Statemachine statemachine;
+    private Combat combat = new Combat();
+
+    readonly int hashTrace = Animator.StringToHash("IsTrace");
+    readonly int hashAttack = Animator.StringToHash("IsAttack");
+    readonly int hashHit = Animator.StringToHash("Hit");
+    readonly int hashDead = Animator.StringToHash("Dead");
+    private void Awake()
+    {
+        player = Player.Instance;
+        playerTrf = player.transform;
+        enemyTrf = GetComponent<Transform>();
+        agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
+
+        statemachine = gameObject.AddComponent<Statemachine>();
+        statemachine.AddState(State.IDLE, new IdleState(this));
+        statemachine.AddState(State.TRACE, new TraceState(this));
+        statemachine.AddState(State.ATTACK, new AttackState(this));
+        statemachine.InitState(State.IDLE);
+
+        agent.destination = playerTrf.position;
+    }
+    protected virtual IEnumerator CheckEnemyState()
+    {
+        while (!isDie)
+        {
+            yield return new WaitForSeconds(0.3f);
+
+            if (state == State.DIE)
+            {
+                statemachine.ChangeState(State.DIE);
+                yield break;
+            }
+
+            float distance = Vector3.Distance(playerTrf.position, enemyTrf.position);
+
+            if (distance <= attackDistance)
+            {
+                statemachine.ChangeState(State.ATTACK);
+            }
+            else if (distance <= traceDistance)
+            {
+                statemachine.ChangeState(State.TRACE);
+            }
+            else
+            {
+                statemachine.ChangeState(State.IDLE);
+            }
+        }
     }
 
     //적 공격 애니메이션에서 실행됨
@@ -31,17 +89,82 @@ public class CloseRangeEnemy : Enemy, IDamagable
         if (damagable)//Todo: 공격 거리 계산을 다시 하고 싶을 수 있음
         {
             //플레이어에게 데미지 추가
-            Debug.Log("Player Damaged!!");
+            player.TakeDamage(10f);
         }
     }
-
     public void TakeDamage(float damage)
     {
-        combat.TakeDamage(damage);
+        if(combat.TakeDamage(damage))
+        {
+            animator.SetTrigger(hashHit);
+        }
     }
-
     private void Dead()
     {
         isDie = true;
+    }
+
+
+    class BaseEnemyState : BaseState
+    {
+        protected CloseRangeEnemy owner;
+        public BaseEnemyState(CloseRangeEnemy owner)
+        {
+            this.owner = owner;
+        }
+    }
+
+    class IdleState : BaseEnemyState
+    {
+        public IdleState(CloseRangeEnemy owner) : base(owner) { }
+
+        public override void Enter()
+        {
+            owner.agent.isStopped = true;
+            owner.animator.SetBool(owner.hashTrace, false);
+        }
+    }
+
+    class TraceState : BaseEnemyState
+    {
+        public TraceState(CloseRangeEnemy owner) : base(owner) { }
+
+        public override void Enter()
+        {
+            owner.agent.SetDestination(owner.playerTrf.position);
+
+            owner.agent.isStopped = false;
+            owner.animator.SetBool(owner.hashTrace, true);
+            owner.animator.SetBool(owner.hashAttack, false);
+        }
+    }
+
+    class AttackState : BaseEnemyState
+    {
+        public AttackState(CloseRangeEnemy owner) : base(owner) { }
+
+        public override void Enter()
+        {
+            owner.animator.SetBool(owner.hashAttack, true);
+        }
+    }
+    class DeadState : BaseEnemyState
+    {
+        public DeadState(CloseRangeEnemy owner) : base(owner) { }
+
+        public override void Enter()
+        {
+            Debug.Log("Dead");
+        }
+    }
+    private void Start()
+    {
+        player = Player.Instance;
+        Debug.Assert(player != null);// 플레이어나 널이면 경고
+        combat.Init(transform, 100f);
+
+        combat.OnDead += Dead;
+
+        StartCoroutine(CheckEnemyState());
     }
 }
