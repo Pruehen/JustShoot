@@ -98,7 +98,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
             //플레이어에게 데미지 추가
             player.TakeDamage(10f);
             int type = 1;
-            Vector3 hitPosition = player.transform.position;
+            Vector3 hitPosition = player.transform.position + Vector3.up;
             EffectManager.Instance.HitEffectGenenate(hitPosition, type);//착탄 이펙트 발생
         }
     }
