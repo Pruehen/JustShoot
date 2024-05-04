@@ -47,7 +47,7 @@ public class Bullet_Rocket : Bullet
             Rigidbody targetRigidbody;
             if(hit.gameObject.TryGetComponent<Rigidbody>(out targetRigidbody))
             {
-                targetRigidbody.AddForce((hit.transform.position - center).normalized * 3, ForceMode.Impulse);
+                targetRigidbody.AddForce((hit.transform.position - center).normalized * 3, ForceMode.VelocityChange);
             }
 
             if (hit.gameObject.CompareTag("Enemy"))
