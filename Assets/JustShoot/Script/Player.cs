@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
 
 public class Player : SceneSingleton<Player>
 {
@@ -33,7 +32,7 @@ public class Player : SceneSingleton<Player>
 
     bool isReload = false;
 
-    public Combat combat = new Combat();
+    public PlayerCombat combat = new PlayerCombat();
 
    // CinemachineImpulseSource impulseSource;
 
