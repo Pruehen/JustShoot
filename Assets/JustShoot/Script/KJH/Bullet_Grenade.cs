@@ -20,14 +20,7 @@ public class Bullet_Grenade : Bullet
     {
         EffectManager.Instance.ExplosionEffectGenerate(hitPosition, 1);
         SplashDamage(hitPosition, 10);
-
-        for (int i = 0; i < 100; i++)
-        {
-            GameObject frag = ObjectPoolManager.Instance.DequeueObject(fragPrf);
-            frag.transform.position = hitPosition + new Vector3(0, 1, 0);
-            frag.transform.rotation = Quaternion.Euler(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
-            frag.GetComponent<Bullet>().Init(baseDmg * 0.01f, 100, 0.2f);
-        }
+        FragDemage(hitPosition, fragPrf, 100);
 
         ObjectPoolManager.Instance.EnqueueObject(this.gameObject);
     }
@@ -42,6 +35,16 @@ public class Bullet_Grenade : Bullet
             {
                 hit.gameObject.GetComponent<IDamagable>().TakeDamage(baseDmg * (radius - (center - hit.transform.position).magnitude)/radius);//피해 가함. 거리에 따라 데미지가 선형적으로 감소
             }
+        }
+    }
+    void FragDemage(Vector3 center, GameObject fragPrf, int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            GameObject frag = ObjectPoolManager.Instance.DequeueObject(fragPrf);
+            frag.transform.position = center + new Vector3(0, 1, 0);
+            frag.transform.rotation = Quaternion.Euler(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
+            frag.GetComponent<Bullet>().Init(baseDmg * 0.01f, 100, 0.2f);
         }
     }
 }
