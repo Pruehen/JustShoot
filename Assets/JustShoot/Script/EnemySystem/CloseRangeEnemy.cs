@@ -1,14 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class CloseRangeEnemy : Enemy
+//Todo: longrange처럼 다 새로 만드는게 나을수도
+public class CloseRangeEnemy : Enemy, IDamagable
 {
+    private Combat combat = new Combat();
     protected override void Start()
     {
         base.Start();
         player = Player.Instance;
         Debug.Assert(player != null);// 플레이어나 널이면 경고
+        combat.Init(transform, 100f);
+
+        combat.OnDead += Dead;
     }
 
     //적 공격 애니메이션에서 실행됨
@@ -29,5 +33,15 @@ public class CloseRangeEnemy : Enemy
             //플레이어에게 데미지 추가
             Debug.Log("Player Damaged!!");
         }
+    }
+
+    public void TakeDamage(float damage)
+    {
+        combat.TakeDamage(damage);
+    }
+
+    private void Dead()
+    {
+        isDie = true;
     }
 }
