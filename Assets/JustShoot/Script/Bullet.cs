@@ -23,7 +23,7 @@ public class Bullet : MonoBehaviour
         else if (collision.gameObject.CompareTag("Player"))//착탄한 대상의 태그가 Player일 경우, 이펙트를 피튀기는 이펙트로 변경
         {
             type = 1;
-            collision.gameObject.GetComponent<IDamagable>().TakeDamage(dmg);
+            Player.Instance.TakeDamage(dmg);
         }
         ProjectileDestroy(collision.contacts[0].point, type);//충돌 위치를 넘겨서 각종 처리를 하는 역할.
     }    
