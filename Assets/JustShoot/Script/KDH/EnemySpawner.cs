@@ -5,12 +5,15 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    public ObjectPoolManager poolManager;
     public Queue<GameObject> m_Queue = new Queue<GameObject>();
 
     public GameObject[] prefabs;
-    public float spawnTime = 10.0f;
-    public int m_Count = 10;
+    public Transform[] OuterSpawner;
+    public float spawnTime = 1.0f;
+    public int m_Count;
+
+    public float rangePosX = 2.5f;
+    public float rangePosY = 2.5f;
 
     private void Start()
     {
@@ -19,9 +22,12 @@ public class EnemySpawner : MonoBehaviour
 
         for (int i = 0; i < m_Count; i++)
         {
-            //int e_rand = Random.Range(0, prefabs.Length);
-            GameObject m_object = poolManager.DequeueObject(prefabs[0]);
-            m_object.transform.position = transform.position;
+            int e_rand = Random.Range(0, prefabs.Length);
+            int t_rand = Random.Range(0, OuterSpawner.Length);
+            GameObject m_object = ObjectPoolManager.Instance.DequeueObject(prefabs[e_rand]);
+
+            // ;
+            m_object.transform.position = positionRandom(OuterSpawner[t_rand].position);
             m_object.gameObject.SetActive(false);
 
             m_Queue.Enqueue(m_object);
@@ -39,6 +45,15 @@ public class EnemySpawner : MonoBehaviour
             yield return new WaitForSeconds(spawnTime);
             //m_Queue.Enqueue(prefabs[0]);
         }
+    }
 
+    Vector3 positionRandom(Vector3 t)
+    {
+        float x_rand = Random.Range(-rangePosX, rangePosX);
+        float y_rand = Random.Range(-rangePosY, rangePosY);
+        t.x += x_rand;
+        t.y += y_rand;
+        return t;
     }
 }
+

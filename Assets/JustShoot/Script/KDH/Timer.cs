@@ -16,7 +16,9 @@ public class Timer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        remainTime -= Time.deltaTime;
+        if(remainTime > 0.01f)
+            remainTime -= Time.deltaTime;
+
         UpdateTime();
     }
     void UpdateTime()
