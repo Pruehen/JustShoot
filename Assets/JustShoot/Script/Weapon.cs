@@ -9,6 +9,7 @@ public class Weapon : MonoBehaviour
 
     [Header("Spec")]
     [SerializeField] GameObject projectilePrf;//발사할 투사체 프리팹
+    [SerializeField] GameObject fireSound;//발사 시 재생할 오디오소스 프리팹
     [SerializeField] float rpm;//분당 발사 속도
     [SerializeField] int fireCount;//1회당 발사 속도. 
     [SerializeField] float burstDelay;//1회당 여러발을 발사하게 될 경우, 그 발간의 시간 간격
@@ -83,6 +84,7 @@ public class Weapon : MonoBehaviour
             bullet--;
 
             Player.Instance.Recoil(recoil);
+            SFXManager.Instance.SoundOn(firePoint.position, fireSound);
             if (delay > 0)
             {
                 yield return new WaitForSeconds(delay);

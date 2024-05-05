@@ -355,6 +355,7 @@ MonoBehaviour:
   firePoint: {fileID: 8062216043912802878}
   fpsViewPoint: {fileID: 3130363056920620687}
   projectilePrf: {fileID: 1634727942366104, guid: 109d2cf8b02cb1b498b03bb4b6ee117d, type: 3}
+  fireSound: {fileID: 5205876836135176155, guid: d8c878eb062b639428c1eda7766d8fb2, type: 3}
   rpm: 60
   fireCount: 1
   burstDelay: 0

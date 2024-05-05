@@ -2194,7 +2194,7 @@ MonoBehaviour:
   tpsVCam: {fileID: 8794203403302794065}
   weaponPoint: {fileID: 2947708680612098811}
   weaponsList: []
-  usingWeaponsIndex: 000000000100000002000000
+  usingWeaponsIndex: 000000000100000004000000
   usingWeapons: []
   controlweapon: {fileID: 0}
   combat:

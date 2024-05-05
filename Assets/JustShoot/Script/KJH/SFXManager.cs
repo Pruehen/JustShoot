@@ -2,30 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SFXManager : MonoBehaviour
+public class SFXManager : SceneSingleton<SFXManager>
 {
-    public GameObject gunFire_s;
-    public GameObject gunFire_m;
-    public GameObject gunFire_l;
-    public GameObject rocketLaunch;
     public GameObject explosion;
     public GameObject reload;
 
-    public void GunFireSoundOn(Vector3 position, int type)
+    public void SoundOn(Vector3 position, GameObject prf)
     {
-        GameObject item;
-        if (type == 0)
-        {
-            item = ObjectPoolManager.Instance.DequeueObject(gunFire_s);
-        }
-        else if(type == 1)
-        {
-            item = ObjectPoolManager.Instance.DequeueObject(gunFire_m);
-        }
-        else
-        {
-            item = ObjectPoolManager.Instance.DequeueObject(gunFire_l);
-        }
+        GameObject item = ObjectPoolManager.Instance.DequeueObject(prf);
 
         item.transform.position = position;
         item.transform.rotation = Quaternion.identity;
