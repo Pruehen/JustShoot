@@ -102,8 +102,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 0}
   state: 0
-  traceDistance: 10
-  attackDistance: 2
+  traceDistance: 999
+  attackDistance: 1.5
   aimRotateSpeed: 30
   isDie: 0
   playerTrf: {fileID: 0}

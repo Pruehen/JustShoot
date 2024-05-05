@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class LongRangeEnemy : MonoBehaviour, IDamagable
+public class LongRangeEnemy : BaseEnemy, IDamagable
 {
     [SerializeField] protected Player player;
     private Combat combat = new Combat();
@@ -26,6 +26,7 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
     NavMeshAgent agent;
     Animator animator;
     Statemachine statemachine;
+    Collider col;
 
     readonly int hashTrace = Animator.StringToHash("IsTrace");
     readonly int hashAttack = Animator.StringToHash("IsAttack");
@@ -43,6 +44,7 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
         enemyTrf = GetComponent<Transform>();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        col = GetComponent<Collider>();
 
         statemachine = gameObject.AddComponent<Statemachine>();
         statemachine.AddState(State.IDLE, new IdleState(this));
@@ -74,17 +76,21 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
             if (distance <= attackDistance && IsTargetVisible())
             {
                 statemachine.ChangeState(State.ATTACK);
+                state = State.ATTACK;
             }
             else if (distance <= traceDistance)
             {
                 statemachine.ChangeState(State.TRACE);
+                state = State.TRACE;
             }
             else
             {
                 statemachine.ChangeState(State.IDLE);
+                state = State.IDLE;
             }
         }
         statemachine.ChangeState(State.DEAD);
+        state = State.DEAD;
     }
 
     public void OnAnimationAttack()
@@ -144,6 +150,13 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
     private void Dead()
     {
         isDie = true;
+        col.enabled = false;
+        StartCoroutine(ReturnToPool());
+    }
+    IEnumerator ReturnToPool()
+    {
+        yield return new WaitForSeconds(15f);
+        ObjectPoolManager.Instance.EnqueueObject(gameObject);
     }
 
     class BaseEnemyState : BaseState
@@ -174,12 +187,16 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
         {
             owner.animator.SetBool(owner.hashTrace, true);
             owner.animator.SetBool(owner.hashAttack, false);
+            owner.agent.SetDestination(owner.playerTrf.position);
+        }
+
+        public override void Update()
+        {
             //공격중이면 이동안함
             if (owner.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
                 return;
-            owner.agent.SetDestination(owner.playerTrf.position);
             owner.agent.isStopped = false;
-
+            owner.agent.SetDestination(owner.playerTrf.position);
         }
     }
     class AttackState : BaseEnemyState
@@ -212,6 +229,7 @@ public class LongRangeEnemy : MonoBehaviour, IDamagable
         public override void Enter()
         {
             owner.animator.SetTrigger(owner.hashDead);
+            owner.agent.isStopped = true;
         }
     }
 }

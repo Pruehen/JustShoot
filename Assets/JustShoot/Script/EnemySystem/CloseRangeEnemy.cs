@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class CloseRangeEnemy : MonoBehaviour, IDamagable
+public class CloseRangeEnemy : BaseEnemy, IDamagable
 {
     [SerializeField] protected Player player;
     private Combat combat = new Combat();
@@ -24,6 +24,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
     NavMeshAgent agent;
     Animator animator;
     Statemachine statemachine;
+    Collider col;
 
     readonly int hashTrace = Animator.StringToHash("IsTrace");
     readonly int hashAttack = Animator.StringToHash("IsAttack");
@@ -37,6 +38,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
         enemyTrf = GetComponent<Transform>();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        col = GetComponent<Collider>();
 
         statemachine = gameObject.AddComponent<Statemachine>();
         statemachine.AddState(State.IDLE, new IdleState(this));
@@ -58,6 +60,11 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
 
         StartCoroutine(CheckEnemyState());
     }
+
+    private void OnEnable()
+    {
+        col.enabled = true;
+    }
     protected virtual IEnumerator CheckEnemyState()
     {
         while (!isDie)
@@ -68,17 +75,21 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
             if (distance <= attackDistance)
             {
                 statemachine.ChangeState(State.ATTACK);
+                state = State.ATTACK;
             }
             else if (distance <= traceDistance)
             {
                 statemachine.ChangeState(State.TRACE);
+                state = State.TRACE;
             }
             else
             {
                 statemachine.ChangeState(State.IDLE);
+                state = State.IDLE;
             }
         }
         statemachine.ChangeState(State.DEAD);
+        state = State.DEAD;
     }
 
     //적 공격 애니메이션에서 실행됨
@@ -117,6 +128,13 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
     private void Dead()
     {
         isDie = true;
+        col.enabled = false;
+        StartCoroutine(ReturnToPool());
+    }
+    IEnumerator ReturnToPool()
+    {
+        yield return new WaitForSeconds(15f);
+        ObjectPoolManager.Instance.EnqueueObject(gameObject);
     }
     class BaseEnemyState : BaseState
     {
@@ -152,6 +170,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
         }
         public override void Update()
         {
+            owner.agent.SetDestination(owner.playerTrf.position);
             bool moving = owner.agent.velocity.magnitude >= .01f;
             if (moving)
             {
@@ -200,6 +219,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
         public override void Enter()
         {
             owner.animator.SetTrigger(owner.hashDead);
+            owner.agent.isStopped = true;
         }
     }
 }

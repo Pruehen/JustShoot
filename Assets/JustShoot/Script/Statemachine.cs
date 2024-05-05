@@ -63,6 +63,7 @@ public class Statemachine : MonoBehaviour
     }
 }
 
+[System.Serializable]
 public class BaseState
 {
     Statemachine statemachine;
