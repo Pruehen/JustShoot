@@ -25,7 +25,7 @@ public class Player : SceneSingleton<Player>
 
     [Header("UsingWeapons")]
     [SerializeField] List<Weapon> weaponsList;
-    [SerializeField] int[] usingWeaponsIndex = new int[3];
+    //[SerializeField] int[] usingWeaponsIndex = new int[3];
     [SerializeField] List<Weapon> usingWeapons;
     [SerializeField] Weapon controlweapon;
 
@@ -34,7 +34,7 @@ public class Player : SceneSingleton<Player>
     //int shell = 100;
 
     bool isReload = false;
-    bool isDead = false;
+    bool isActive = false;
 
     public PlayerCombat combat = new PlayerCombat();
     PlayerCombatData data = new PlayerCombatData();
@@ -51,12 +51,24 @@ public class Player : SceneSingleton<Player>
                 weaponsList.Add(weapon);
             }
         }
-
-        usingWeapons.Add(weaponsList[usingWeaponsIndex[0]]);
-        usingWeapons.Add(weaponsList[usingWeaponsIndex[1]]);
-        usingWeapons.Add(weaponsList[usingWeaponsIndex[2]]);
-
         tpsVCamRoot.transform.parent = null;
+
+        WeaponSelect(0, 1, 2);//더미 코드. 무기 선택 UI가 구현되면 이 메서드 호출은 제거할 것
+    }
+
+    /// <summary>
+    /// 무기 선택하는 메서드. 각각의 매개변수에 0부터 7까지의 중복되지 않는 int값을 전달하면 됨. 이 메서드가 반드시 실행되어야 캐릭터가 움직이기 시작함.
+    /// </summary>
+    /// <param name="weaponIndex1"></param>
+    /// <param name="weaponIndex2"></param>
+    /// <param name="weaponIndex3"></param>
+    public void WeaponSelect(int weaponIndex1, int weaponIndex2, int weaponIndex3)
+    {
+        usingWeapons.Add(weaponsList[weaponIndex1]);
+        usingWeapons.Add(weaponsList[weaponIndex2]);
+        usingWeapons.Add(weaponsList[weaponIndex3]);
+
+        isActive = true;
     }
 
     // Start is called before the first frame update
@@ -82,7 +94,7 @@ public class Player : SceneSingleton<Player>
     // Update is called once per frame
     void Update()
     {
-        if (!isDead)
+        if (!isActive)
         {
             MoveOrder();//이동  
             RotateOrder();//캐릭터 및 총기 회전
@@ -100,7 +112,7 @@ public class Player : SceneSingleton<Player>
     }
     private void LateUpdate()
     {
-        if (!isDead)
+        if (!isActive)
         {
             CamRotate();//카메라 회전
         }
@@ -259,9 +271,9 @@ public class Player : SceneSingleton<Player>
     public void TakeDamage(float dmg)
     {
         combat.TakeDamage(dmg);
-        if(!isDead && combat.IsDead())
+        if(!isActive && combat.IsDead())
         {
-            isDead = true;
+            isActive = true;
             SetCamType(false);
         }
     }
@@ -281,7 +293,7 @@ public class Player : SceneSingleton<Player>
     }
     void OnLeftClick(InputValue inputValue)//마우스 좌클릭
     {
-        if (!isDead)
+        if (!isActive)
         {
             float isClick = inputValue.Get<float>();
 
@@ -298,7 +310,7 @@ public class Player : SceneSingleton<Player>
     }
     void OnRightClick(InputValue inputValue)//마우스 우클릭
     {
-        if (!isDead)
+        if (!isActive)
         {
             float isClick = inputValue.Get<float>();
 
@@ -319,7 +331,7 @@ public class Player : SceneSingleton<Player>
     }
     void OnReload(InputValue inputValue)
     {
-        if (!isDead)
+        if (!isActive)
         {
             float isClick = inputValue.Get<float>();
 
