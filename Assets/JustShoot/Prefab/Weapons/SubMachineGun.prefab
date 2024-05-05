@@ -260,7 +260,6 @@ GameObject:
   - component: {fileID: 4973641411836888}
   - component: {fileID: 33854611638846674}
   - component: {fileID: 23357952297878414}
-  - component: {fileID: 64668649313575704}
   - component: {fileID: -4470892723027752033}
   m_Layer: 0
   m_Name: SubMachineGun
@@ -341,20 +340,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &64668649313575704
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1540458763532602}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 43606033514524924, guid: 6b3ed4e0000878946b0df982b29e8cb9, type: 2}
 --- !u!114 &-4470892723027752033
 MonoBehaviour:
   m_ObjectHideFlags: 0

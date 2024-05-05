@@ -95,7 +95,6 @@ GameObject:
   - component: {fileID: 4820123757619348}
   - component: {fileID: 33395172940313778}
   - component: {fileID: 23603410742146522}
-  - component: {fileID: 64444085729467916}
   - component: {fileID: 342252626840880317}
   m_Layer: 0
   m_Name: Shogun
@@ -176,20 +175,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &64444085729467916
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1345368308290578}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 43249890650163892, guid: d8579cd8ac4ae854eabd7f397342b314, type: 2}
 --- !u!114 &342252626840880317
 MonoBehaviour:
   m_ObjectHideFlags: 0
