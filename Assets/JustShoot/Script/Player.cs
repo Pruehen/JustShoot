@@ -33,6 +33,7 @@ public class Player : SceneSingleton<Player>
     //int shell = 100;
 
     bool isReload = false;
+    bool isDead = false;
 
     public PlayerCombat combat = new PlayerCombat();
     PlayerCombatData data = new PlayerCombatData();
@@ -62,18 +63,28 @@ public class Player : SceneSingleton<Player>
     // Update is called once per frame
     void Update()
     {
-        MoveOrder();//이동  
-        RotateOrder();//캐릭터 및 총기 회전
+        if (!isDead)
+        {
+            MoveOrder();//이동  
+            RotateOrder();//캐릭터 및 총기 회전
 
-        WeaponSelect();
-        //GunFire();//무기 사용
-        //Debug.Log(tpsVCam.transform.position);
+            WeaponSelect();
+            //GunFire();//무기 사용
+            //Debug.Log(tpsVCam.transform.position);
 
-        SetCombatData();
+            SetCombatData();
+        }
+        else
+        {
+            DeadCamMove();
+        }
     }
     private void LateUpdate()
     {
-        CamRotate();//카메라 회전
+        if (!isDead)
+        {
+            CamRotate();//카메라 회전
+        }
     }
     private void MoveOrder()
     {        
@@ -115,6 +126,11 @@ public class Player : SceneSingleton<Player>
 
         tpsVCamRoot.transform.rotation = Quaternion.Euler(x, camAngle.y + mouseDeltaPos.x, camAngle.z);
         mouseDeltaPos *= 0.9f;
+    }
+    void DeadCamMove()
+    {
+        tpsVCam.transform.localPosition += new Vector3(1, 1, -1) * Time.deltaTime;
+        tpsVCam.transform.LookAt(this.transform.position);
     }
     void RotateOrder()
     {
@@ -219,6 +235,11 @@ public class Player : SceneSingleton<Player>
     public void TakeDamage(float dmg)
     {
         combat.TakeDamage(dmg);
+        if(!isDead && combat.IsDead())
+        {
+            isDead = true;
+            SetCamType(false);
+        }
     }
 
 
@@ -236,31 +257,37 @@ public class Player : SceneSingleton<Player>
     }
     void OnLeftClick(InputValue inputValue)//마우스 좌클릭
     {
-        float isClick = inputValue.Get<float>();
+        if (!isDead)
+        {
+            float isClick = inputValue.Get<float>();
 
-        if (isClick == 1)//눌렀을 때
-        {
-            isFire = true;
+            if (isClick == 1)//눌렀을 때
+            {
+                isFire = true;
+            }
+            else//뗄 때
+            {
+                isFire = false;
+            }
+            controlweapon.SetTrigger(isFire);
         }
-        else//뗄 때
-        {
-            isFire = false;
-        }
-        controlweapon.SetTrigger(isFire);
     }
     void OnRightClick(InputValue inputValue)//마우스 우클릭
     {
-        float isClick = inputValue.Get<float>();
+        if (!isDead)
+        {
+            float isClick = inputValue.Get<float>();
 
-        if (isClick == 1)//눌렀을 때
-        {
-            isZoom = true;            
+            if (isClick == 1)//눌렀을 때
+            {
+                isZoom = true;
+            }
+            else//뗄 때
+            {
+                isZoom = false;
+            }
+            SetCamType(isZoom);
         }
-        else//뗄 때
-        {
-            isZoom = false;            
-        }
-        SetCamType(isZoom);
     }
     void OnAim(InputValue inputValue)
     {
@@ -268,13 +295,16 @@ public class Player : SceneSingleton<Player>
     }
     void OnReload(InputValue inputValue)
     {
-        float isClick = inputValue.Get<float>();
-
-        if(!isReload)
+        if (!isDead)
         {
-            //Debug.Log(isClick);
-            isReload = true;
-            Reload();
+            float isClick = inputValue.Get<float>();
+
+            if (!isReload)
+            {
+                //Debug.Log(isClick);
+                isReload = true;
+                Reload();
+            }
         }
     }
 
