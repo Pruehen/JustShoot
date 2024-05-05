@@ -24,9 +24,10 @@ public class Player : SceneSingleton<Player>
     [SerializeField] Transform weaponPoint;
 
     [Header("UsingWeapons")]
-    [SerializeField] Weapon[] weapons;
-    
-    Weapon controlweapon;
+    [SerializeField] List<Weapon> weaponsList;
+    [SerializeField] int[] usingWeaponsIndex = new int[3];
+    [SerializeField] List<Weapon> usingWeapons;
+    [SerializeField] Weapon controlweapon;
 
     //float fireDelay = 0;
     //float delayCount = 0.1f;
@@ -39,6 +40,24 @@ public class Player : SceneSingleton<Player>
     PlayerCombatData data = new PlayerCombatData();
 
     // CinemachineImpulseSource impulseSource;
+
+    private void Awake()
+    {
+        for (int i = 0; i < weaponPoint.childCount; i++)
+        {
+            Weapon weapon;
+            if(weaponPoint.GetChild(i).TryGetComponent<Weapon>(out weapon))
+            {
+                weaponsList.Add(weapon);
+            }
+        }
+
+        usingWeapons.Add(weaponsList[usingWeaponsIndex[0]]);
+        usingWeapons.Add(weaponsList[usingWeaponsIndex[1]]);
+        usingWeapons.Add(weaponsList[usingWeaponsIndex[2]]);
+
+        tpsVCamRoot.transform.parent = null;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -177,19 +196,19 @@ public class Player : SceneSingleton<Player>
     }
     void WeaponChange(int index)
     {
-        if(weapons.Length > index)
+        if(usingWeapons.Count > index)
         {
-            for (int i = 0; i < weapons.Length; i++)
+            for (int i = 0; i < usingWeapons.Count; i++)
             {
                 if(index == i)
                 {
-                    weapons[i].gameObject.SetActive(true);
-                    controlweapon = weapons[i];
+                    usingWeapons[i].gameObject.SetActive(true);
+                    controlweapon = usingWeapons[i];
                     controlWeaponIndex = index;
                 }
                 else
                 {
-                    weapons[i].gameObject.SetActive(false);
+                    usingWeapons[i].gameObject.SetActive(false);
                 }
             }
         }
