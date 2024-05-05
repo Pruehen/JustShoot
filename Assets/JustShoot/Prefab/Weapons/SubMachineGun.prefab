@@ -263,7 +263,7 @@ GameObject:
   - component: {fileID: 64668649313575704}
   - component: {fileID: -4470892723027752033}
   m_Layer: 0
-  m_Name: SM_Wep_SubMGun_Lite_01
+  m_Name: SubMachineGun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -263,7 +263,7 @@ GameObject:
   - component: {fileID: 64592644469607100}
   - component: {fileID: -252163478157660556}
   m_Layer: 0
-  m_Name: SM_Wep_RPG_01
+  m_Name: RPG-7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

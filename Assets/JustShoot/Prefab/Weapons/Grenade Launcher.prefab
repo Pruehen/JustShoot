@@ -520,7 +520,7 @@ GameObject:
   - component: {fileID: 64980432335374858}
   - component: {fileID: 4653312398859743301}
   m_Layer: 0
-  m_Name: SM_Wep_Grenade_Launcher_01
+  m_Name: Grenade Launcher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
