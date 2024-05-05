@@ -12,7 +12,7 @@ public class Weapon : MonoBehaviour
     [SerializeField] float rpm;//분당 발사 속도
     [SerializeField] int fireCount;//1회당 발사 속도. 
     [SerializeField] float burstDelay;//1회당 여러발을 발사하게 될 경우, 그 발간의 시간 간격
-    public int magazineBulletCount { get; private set; }//1탄창당 탄환 수
+    [SerializeField] int magazineBulletCount;//1탄창당 탄환 수
     [SerializeField] float operability;//무기 조작성. 수치가 클수록 캐릭터 회전이 빠름
     [SerializeField] float projectileVelocity;//포구초속. m/s단위
     [SerializeField] float dmg;//발당 데미지
@@ -21,6 +21,11 @@ public class Weapon : MonoBehaviour
 
     float delay;//무기 연사 속도 조절을 위한 변수
     public int bullet { get; private set; }//현재 무기의 남은 탄환 수
+    public int magazinBulletcount()
+    {
+        return magazineBulletCount;
+    }
+
     bool trigger;//무기의 트리거 상태 (true일 경우 무기 발사)
 
     public void SetTrigger(bool value)

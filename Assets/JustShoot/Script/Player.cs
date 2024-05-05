@@ -284,7 +284,7 @@ public class Player : SceneSingleton<Player>
         data.playerCurHp = combat.GetHp();
         data.controlWeaponName = controlweapon.gameObject.name;
         data.controlWeaponIndex = controlWeaponIndex;
-        data.cwMaxMag = controlweapon.magazineBulletCount;
+        data.cwMaxMag = controlweapon.magazinBulletcount();
         data.cwCurMag = controlweapon.bullet;
         data.killCount = combat.GetKillCount();
     }
