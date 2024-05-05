@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class LongRangeEnemy : BaseEnemy, IDamagable
 {
     [SerializeField] protected Player player;
-    private Combat combat = new Combat();
+    private EnemyCombat combat = new EnemyCombat();
     public enum State
     {
         IDLE, TRACE, ATTACK, DEAD
@@ -15,8 +15,8 @@ public class LongRangeEnemy : BaseEnemy, IDamagable
 
     public bool isAimeAligned = false;
 
-    public float traceDistance = 10;
-    public float attackDistance = 2;
+    public float traceDistance = 9999f;
+    public float attackDistance = 10f;
     public float aimRotateSpeed = 30f;
 
     public bool isDie = false;

@@ -6,15 +6,15 @@ using UnityEngine.AI;
 public class CloseRangeEnemy : BaseEnemy, IDamagable
 {
     [SerializeField] protected Player player;
-    private Combat combat = new Combat();
+    private EnemyCombat combat = new EnemyCombat();
     public enum State
     {
         IDLE, TRACE, ATTACK, DEAD
     }
     public State state = State.IDLE;
 
-    public float traceDistance = 10;
-    public float attackDistance = 2;
+    public float traceDistance = 9999f;
+    public float attackDistance = 1.5f;
     public float aimRotateSpeed = 30f;
 
     public bool isDie = false;
@@ -25,6 +25,7 @@ public class CloseRangeEnemy : BaseEnemy, IDamagable
     Animator animator;
     Statemachine statemachine;
     Collider col;
+    AudioSource audioSource;
 
     readonly int hashTrace = Animator.StringToHash("IsTrace");
     readonly int hashAttack = Animator.StringToHash("IsAttack");
