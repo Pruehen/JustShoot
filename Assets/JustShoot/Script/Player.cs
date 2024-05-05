@@ -244,7 +244,7 @@ public class Player : SceneSingleton<Player>
     }
     public void Recoil(float recoli)
     {
-        mouseDeltaPos = new Vector2(Random.Range(-recoli, recoli), Random.Range(recoli, recoli*3)) * 0.2f;
+        mouseDeltaPos = new Vector2(Random.Range(-recoli, recoli), Random.Range(recoli, recoli*3)) * 0.12f;
     }
     IEnumerator ReloadEnd()
     {
