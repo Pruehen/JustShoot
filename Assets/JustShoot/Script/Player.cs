@@ -35,8 +35,9 @@ public class Player : SceneSingleton<Player>
     bool isReload = false;
 
     public PlayerCombat combat = new PlayerCombat();
+    PlayerCombatData data = new PlayerCombatData();
 
-   // CinemachineImpulseSource impulseSource;
+    // CinemachineImpulseSource impulseSource;
 
     // Start is called before the first frame update
     void Start()
@@ -67,6 +68,8 @@ public class Player : SceneSingleton<Player>
         WeaponSelect();
         //GunFire();//무기 사용
         //Debug.Log(tpsVCam.transform.position);
+
+        SetCombatData();
     }
     private void LateUpdate()
     {
@@ -218,6 +221,7 @@ public class Player : SceneSingleton<Player>
         combat.TakeDamage(dmg);
     }
 
+
     void OnMove(InputValue inputValue)//WASD 조작
     {
         moveVectorTarget = inputValue.Get<Vector2>();//인풋 벡터 받아옴
@@ -274,9 +278,8 @@ public class Player : SceneSingleton<Player>
         }
     }
 
-    public PlayerCombatData GetCombatData()
+    void SetCombatData()
     {
-        PlayerCombatData data = new PlayerCombatData();
         data.playerMaxHp = combat.GetMaxHp();
         data.playerCurHp = combat.GetHp();
         data.controlWeaponName = controlweapon.gameObject.name;
@@ -284,7 +287,10 @@ public class Player : SceneSingleton<Player>
         data.cwMaxMag = controlweapon.magazineBulletCount;
         data.cwCurMag = controlweapon.bullet;
         data.killCount = combat.GetKillCount();
+    }
 
+    public PlayerCombatData GetCombatData()
+    {
         return data;
     }
 
@@ -300,7 +306,7 @@ public class Player : SceneSingleton<Player>
     }
 }
 
-public struct PlayerCombatData//참조용 데이터 구조체
+public class PlayerCombatData//참조용 데이터 클래스
 {
     public float playerMaxHp;//최대 체력
     public float playerCurHp;//현재 체력
