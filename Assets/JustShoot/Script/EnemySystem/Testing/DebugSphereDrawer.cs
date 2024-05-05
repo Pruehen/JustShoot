@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DebugSphereDrawer : MonoBehaviour
+public class DebugSphereDrawer : SceneSingleton<DebugSphereDrawer>
 {
     private static List<Vector3> poss = new();
     private static List<float> radis = new();
