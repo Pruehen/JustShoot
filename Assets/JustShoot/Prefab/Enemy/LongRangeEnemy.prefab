@@ -5919,9 +5919,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 0}
   state: 0
-  isAimed: 0
-  traceDistance: 50
+  isAimeAligned: 0
+  traceDistance: 9999
   attackDistance: 10
+  aimRotateSpeed: 30
   isDie: 0
   playerTrf: {fileID: 0}
   shootTransform: {fileID: 3829437070013621616}

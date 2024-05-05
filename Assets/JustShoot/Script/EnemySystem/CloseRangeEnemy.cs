@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class CloseRangeEnemy : MonoBehaviour, IDamagable
+public class CloseRangeEnemy : BaseEnemy, IDamagable
 {
     [SerializeField] protected Player player;
     private Combat combat = new Combat();
@@ -15,6 +15,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
 
     public float traceDistance = 10;
     public float attackDistance = 2;
+    public float aimRotateSpeed = 30f;
 
     public bool isDie = false;
 
@@ -23,6 +24,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
     NavMeshAgent agent;
     Animator animator;
     Statemachine statemachine;
+    Collider col;
 
     readonly int hashTrace = Animator.StringToHash("IsTrace");
     readonly int hashAttack = Animator.StringToHash("IsAttack");
@@ -36,6 +38,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
         enemyTrf = GetComponent<Transform>();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        col = GetComponent<Collider>();
 
         statemachine = gameObject.AddComponent<Statemachine>();
         statemachine.AddState(State.IDLE, new IdleState(this));
@@ -57,6 +60,11 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
 
         StartCoroutine(CheckEnemyState());
     }
+
+    private void OnEnable()
+    {
+        col.enabled = true;
+    }
     protected virtual IEnumerator CheckEnemyState()
     {
         while (!isDie)
@@ -67,17 +75,21 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
             if (distance <= attackDistance)
             {
                 statemachine.ChangeState(State.ATTACK);
+                state = State.ATTACK;
             }
             else if (distance <= traceDistance)
             {
                 statemachine.ChangeState(State.TRACE);
+                state = State.TRACE;
             }
             else
             {
                 statemachine.ChangeState(State.IDLE);
+                state = State.IDLE;
             }
         }
         statemachine.ChangeState(State.DEAD);
+        state = State.DEAD;
     }
 
     //적 공격 애니메이션에서 실행됨
@@ -98,7 +110,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
             //플레이어에게 데미지 추가
             player.TakeDamage(10f);
             int type = 1;
-            Vector3 hitPosition = player.transform.position;
+            Vector3 hitPosition = player.transform.position + Vector3.up;
             EffectManager.Instance.HitEffectGenenate(hitPosition, type);//착탄 이펙트 발생
         }
     }
@@ -116,6 +128,13 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
     private void Dead()
     {
         isDie = true;
+        col.enabled = false;
+        StartCoroutine(ReturnToPool());
+    }
+    IEnumerator ReturnToPool()
+    {
+        yield return new WaitForSeconds(15f);
+        ObjectPoolManager.Instance.EnqueueObject(gameObject);
     }
     class BaseEnemyState : BaseState
     {
@@ -151,6 +170,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
         }
         public override void Update()
         {
+            owner.agent.SetDestination(owner.playerTrf.position);
             bool moving = owner.agent.velocity.magnitude >= .01f;
             if (moving)
             {
@@ -184,6 +204,12 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
                 owner.animator.SetBool(owner.hashMoving, false);
             }
 
+            Vector3 pos = owner.transform.position;
+            Vector3 target = owner.playerTrf.position;
+            Vector3 desiredDir = -pos + target;
+            desiredDir = new Vector3(desiredDir.x, 0f, desiredDir.z);
+            desiredDir = desiredDir.normalized;
+            owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, Quaternion.LookRotation(desiredDir), Time.deltaTime * owner.aimRotateSpeed);
         }
     }
     class DeadState : BaseEnemyState
@@ -193,6 +219,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
         public override void Enter()
         {
             owner.animator.SetTrigger(owner.hashDead);
+            owner.agent.isStopped = true;
         }
     }
 }
