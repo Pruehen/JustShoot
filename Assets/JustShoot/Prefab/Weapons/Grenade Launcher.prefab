@@ -517,10 +517,9 @@ GameObject:
   - component: {fileID: 4970250803505614}
   - component: {fileID: 33375988007773820}
   - component: {fileID: 23935771867467466}
-  - component: {fileID: 64980432335374858}
   - component: {fileID: 4653312398859743301}
   m_Layer: 0
-  m_Name: SM_Wep_Grenade_Launcher_01
+  m_Name: Grenade Launcher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -596,20 +595,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &64980432335374858
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1602100996513702}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 43750694340086620, guid: 16d640794e72dac42914ad9ccc6ec81a, type: 2}
 --- !u!114 &4653312398859743301
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -625,6 +610,7 @@ MonoBehaviour:
   firePoint: {fileID: 6926282798192647985}
   fpsViewPoint: {fileID: 1868613379160683436}
   projectilePrf: {fileID: 1405211435293244, guid: fe347a2e8265ecb429049be8492d4ff9, type: 3}
+  fireSound: {fileID: 5957404319507895262, guid: d134b2b6560625f4b9292b173f4a393f, type: 3}
   rpm: 120
   fireCount: 1
   burstDelay: 0

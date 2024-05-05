@@ -9,6 +9,7 @@ public class Weapon : MonoBehaviour
 
     [Header("Spec")]
     [SerializeField] GameObject projectilePrf;//발사할 투사체 프리팹
+    [SerializeField] GameObject fireSound;//발사 시 재생할 오디오소스 프리팹
     [SerializeField] float rpm;//분당 발사 속도
     [SerializeField] int fireCount;//1회당 발사 속도. 
     [SerializeField] float burstDelay;//1회당 여러발을 발사하게 될 경우, 그 발간의 시간 간격
@@ -21,9 +22,13 @@ public class Weapon : MonoBehaviour
 
     float delay;//무기 연사 속도 조절을 위한 변수
     public int bullet { get; private set; }//현재 무기의 남은 탄환 수
-    public int magazinBulletcount()
+    public int MagazineBulletCount()
     {
         return magazineBulletCount;
+    }
+    public float Operability()
+    {
+        return operability;
     }
 
     bool trigger;//무기의 트리거 상태 (true일 경우 무기 발사)
@@ -64,7 +69,10 @@ public class Weapon : MonoBehaviour
         {            
             bulletIst = ObjectPoolManager.Instance.DequeueObject(projectilePrf);//프리팹 생성
             bulletIst.transform.position = firePoint.position;//좌표 지정
-            bulletIst.transform.rotation = firePoint.rotation;//회전 지정
+
+            Vector3 randomDirection = Random.insideUnitSphere.normalized;
+            Quaternion randomRotation = Quaternion.AngleAxis(count * 0.1f, randomDirection);
+            bulletIst.transform.rotation = firePoint.rotation * randomRotation;//회전 지정
 
             bulletIst.GetComponent<Bullet>().Init(dmg, projectileVelocity, 5);//데미지, 탄속 지정
 
@@ -75,7 +83,12 @@ public class Weapon : MonoBehaviour
             //animator.SetTrigger("Fire");
             bullet--;
 
-            yield return new WaitForSeconds(delay);
+            Player.Instance.Recoil(recoil);
+            SFXManager.Instance.SoundOn(firePoint.position, fireSound);
+            if (delay > 0)
+            {
+                yield return new WaitForSeconds(delay);
+            }
         }
     }
 

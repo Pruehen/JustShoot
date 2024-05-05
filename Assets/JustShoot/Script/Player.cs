@@ -24,20 +24,52 @@ public class Player : SceneSingleton<Player>
     [SerializeField] Transform weaponPoint;
 
     [Header("UsingWeapons")]
-    [SerializeField] Weapon[] weapons;
-    
-    Weapon controlweapon;
+    [SerializeField] List<Weapon> weaponsList;
+    //[SerializeField] int[] usingWeaponsIndex = new int[3];
+    [SerializeField] List<Weapon> usingWeapons;
+    [SerializeField] Weapon controlweapon;
 
     //float fireDelay = 0;
     //float delayCount = 0.1f;
     //int shell = 100;
 
     bool isReload = false;
+    bool isActive = false;
 
     public PlayerCombat combat = new PlayerCombat();
     PlayerCombatData data = new PlayerCombatData();
 
     // CinemachineImpulseSource impulseSource;
+
+    private void Awake()
+    {
+        for (int i = 0; i < weaponPoint.childCount; i++)
+        {
+            Weapon weapon;
+            if(weaponPoint.GetChild(i).TryGetComponent<Weapon>(out weapon))
+            {
+                weaponsList.Add(weapon);
+            }
+        }
+        tpsVCamRoot.transform.parent = null;
+
+        WeaponSelect(0, 1, 2);//더미 코드. 무기 선택 UI가 구현되면 이 메서드 호출은 제거할 것
+    }
+
+    /// <summary>
+    /// 무기 선택하는 메서드. 각각의 매개변수에 0부터 7까지의 중복되지 않는 int값을 전달하면 됨. 이 메서드가 반드시 실행되어야 캐릭터가 움직이기 시작함.
+    /// </summary>
+    /// <param name="weaponIndex1"></param>
+    /// <param name="weaponIndex2"></param>
+    /// <param name="weaponIndex3"></param>
+    public void WeaponSelect(int weaponIndex1, int weaponIndex2, int weaponIndex3)
+    {
+        usingWeapons.Add(weaponsList[weaponIndex1]);
+        usingWeapons.Add(weaponsList[weaponIndex2]);
+        usingWeapons.Add(weaponsList[weaponIndex3]);
+
+        isActive = true;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -62,18 +94,28 @@ public class Player : SceneSingleton<Player>
     // Update is called once per frame
     void Update()
     {
-        MoveOrder();//이동  
-        RotateOrder();//캐릭터 및 총기 회전
+        if (isActive)
+        {
+            MoveOrder();//이동  
+            RotateOrder();//캐릭터 및 총기 회전
 
-        WeaponSelect();
-        //GunFire();//무기 사용
-        //Debug.Log(tpsVCam.transform.position);
+            WeaponSelect();
+            //GunFire();//무기 사용
+            //Debug.Log(tpsVCam.transform.position);
 
-        SetCombatData();
+            SetCombatData();
+        }
+        else
+        {
+            DeadCamMove();
+        }
     }
     private void LateUpdate()
     {
-        CamRotate();//카메라 회전
+        if (isActive)
+        {
+            CamRotate();//카메라 회전
+        }
     }
     private void MoveOrder()
     {        
@@ -116,19 +158,24 @@ public class Player : SceneSingleton<Player>
         tpsVCamRoot.transform.rotation = Quaternion.Euler(x, camAngle.y + mouseDeltaPos.x, camAngle.z);
         mouseDeltaPos *= 0.9f;
     }
+    void DeadCamMove()
+    {
+        tpsVCam.transform.localPosition += new Vector3(1, 1, -1) * Time.deltaTime;
+        tpsVCam.transform.LookAt(this.transform.position);
+    }
     void RotateOrder()
     {
         Vector3 direction = (tpsVCam.transform.forward).normalized;
         
         Quaternion rotationWeapon = Quaternion.LookRotation(direction);
         rotationWeapon = Quaternion.Euler(rotationWeapon.eulerAngles.x, this.transform.rotation.eulerAngles.y, rotationWeapon.eulerAngles.z);
-        weaponPoint.rotation = Quaternion.Slerp(weaponPoint.rotation, rotationWeapon, Time.deltaTime * 6);
+        weaponPoint.rotation = Quaternion.Slerp(weaponPoint.rotation, rotationWeapon, Time.deltaTime * controlweapon.Operability() * 0.4f);
 
         direction = new Vector3(direction.x, 0, direction.z);
 
         Quaternion rotationBody = Quaternion.LookRotation(direction);
         //rotationBody = Quaternion.Euler(0, rotationBody.eulerAngles.y, 0);
-        this.transform.rotation = Quaternion.Slerp(this.transform.rotation, rotationBody, Time.deltaTime * 6);
+        this.transform.rotation = Quaternion.Slerp(this.transform.rotation, rotationBody, Time.deltaTime * controlweapon.Operability() * 0.4f);
     }
     void SetCamType(bool isFps)
     {
@@ -161,19 +208,19 @@ public class Player : SceneSingleton<Player>
     }
     void WeaponChange(int index)
     {
-        if(weapons.Length > index)
+        if(usingWeapons.Count > index)
         {
-            for (int i = 0; i < weapons.Length; i++)
+            for (int i = 0; i < usingWeapons.Count; i++)
             {
                 if(index == i)
                 {
-                    weapons[i].gameObject.SetActive(true);
-                    controlweapon = weapons[i];
+                    usingWeapons[i].gameObject.SetActive(true);
+                    controlweapon = usingWeapons[i];
                     controlWeaponIndex = index;
                 }
                 else
                 {
-                    weapons[i].gameObject.SetActive(false);
+                    usingWeapons[i].gameObject.SetActive(false);
                 }
             }
         }
@@ -205,7 +252,12 @@ public class Player : SceneSingleton<Player>
         animator.SetTrigger("Reload");
         animator.SetFloat("ReloadSpeed", 4/controlweapon.GetReloadTime());
         controlweapon.ReloedStart();
+        SFXManager.Instance.ReloadSoundOn(this.transform.position);
         StartCoroutine(ReloadEnd());
+    }
+    public void Recoil(float recoli)
+    {
+        mouseDeltaPos = new Vector2(Random.Range(-recoli, recoli), Random.Range(recoli, recoli*3)) * 0.12f;
     }
     IEnumerator ReloadEnd()
     {
@@ -219,6 +271,11 @@ public class Player : SceneSingleton<Player>
     public void TakeDamage(float dmg)
     {
         combat.TakeDamage(dmg);
+        if(isActive && combat.IsDead())
+        {
+            isActive = true;
+            SetCamType(false);
+        }
     }
 
 
@@ -236,31 +293,37 @@ public class Player : SceneSingleton<Player>
     }
     void OnLeftClick(InputValue inputValue)//마우스 좌클릭
     {
-        float isClick = inputValue.Get<float>();
+        if (isActive)
+        {
+            float isClick = inputValue.Get<float>();
 
-        if (isClick == 1)//눌렀을 때
-        {
-            isFire = true;
+            if (isClick == 1)//눌렀을 때
+            {
+                isFire = true;
+            }
+            else//뗄 때
+            {
+                isFire = false;
+            }
+            controlweapon.SetTrigger(isFire);
         }
-        else//뗄 때
-        {
-            isFire = false;
-        }
-        controlweapon.SetTrigger(isFire);
     }
     void OnRightClick(InputValue inputValue)//마우스 우클릭
     {
-        float isClick = inputValue.Get<float>();
+        if (isActive)
+        {
+            float isClick = inputValue.Get<float>();
 
-        if (isClick == 1)//눌렀을 때
-        {
-            isZoom = true;            
+            if (isClick == 1)//눌렀을 때
+            {
+                isZoom = true;
+            }
+            else//뗄 때
+            {
+                isZoom = false;
+            }
+            SetCamType(isZoom);
         }
-        else//뗄 때
-        {
-            isZoom = false;            
-        }
-        SetCamType(isZoom);
     }
     void OnAim(InputValue inputValue)
     {
@@ -268,13 +331,16 @@ public class Player : SceneSingleton<Player>
     }
     void OnReload(InputValue inputValue)
     {
-        float isClick = inputValue.Get<float>();
-
-        if(!isReload)
+        if (isActive)
         {
-            //Debug.Log(isClick);
-            isReload = true;
-            Reload();
+            float isClick = inputValue.Get<float>();
+
+            if (!isReload)
+            {
+                //Debug.Log(isClick);
+                isReload = true;
+                Reload();
+            }
         }
     }
 
@@ -284,7 +350,7 @@ public class Player : SceneSingleton<Player>
         data.playerCurHp = combat.GetHp();
         data.controlWeaponName = controlweapon.gameObject.name;
         data.controlWeaponIndex = controlWeaponIndex;
-        data.cwMaxMag = controlweapon.magazinBulletcount();
+        data.cwMaxMag = controlweapon.MagazineBulletCount();
         data.cwCurMag = controlweapon.bullet;
         data.killCount = combat.GetKillCount();
     }
