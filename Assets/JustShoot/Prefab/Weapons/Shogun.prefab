@@ -212,7 +212,7 @@ MonoBehaviour:
   operability: 30
   projectileVelocity: 300
   dmg: 20
-  recoil: 30
+  recoil: 50
   reloadTime: 3
 --- !u!1 &1639743615942954
 GameObject:
