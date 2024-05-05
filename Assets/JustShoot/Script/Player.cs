@@ -240,6 +240,7 @@ public class Player : SceneSingleton<Player>
         animator.SetTrigger("Reload");
         animator.SetFloat("ReloadSpeed", 4/controlweapon.GetReloadTime());
         controlweapon.ReloedStart();
+        SFXManager.Instance.ReloadSoundOn(this.transform.position);
         StartCoroutine(ReloadEnd());
     }
     public void Recoil(float recoli)

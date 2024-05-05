@@ -22,6 +22,7 @@ public class Bullet_Grenade : Bullet
         SplashDamage(hitPosition, 10);
         FragDemage(hitPosition, fragPrf, 100);
 
+        SFXManager.Instance.ExplosionSoundOn(hitPosition);
         ObjectPoolManager.Instance.EnqueueObject(this.gameObject);
     }
 
@@ -42,8 +43,8 @@ public class Bullet_Grenade : Bullet
         for (int i = 0; i < count; i++)
         {
             GameObject frag = ObjectPoolManager.Instance.DequeueObject(fragPrf);
-            frag.transform.position = center + new Vector3(0, 1, 0);
             frag.transform.rotation = Quaternion.Euler(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
+            frag.transform.position = center + frag.transform.forward + new Vector3(0, 1.5f, 9);
             frag.GetComponent<Bullet>().Init(baseDmg * 0.01f, 100, 0.2f);
         }
     }
