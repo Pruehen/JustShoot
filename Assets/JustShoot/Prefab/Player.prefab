@@ -2194,7 +2194,6 @@ MonoBehaviour:
   tpsVCam: {fileID: 8794203403302794065}
   weaponPoint: {fileID: 2947708680612098811}
   weaponsList: []
-  usingWeaponsIndex: 000000000100000004000000
   usingWeapons: []
   controlweapon: {fileID: 0}
   combat:
@@ -2206,6 +2205,7 @@ MonoBehaviour:
     _invincibleTime: 0.1
     _prevHitTime: 0
     additionalEffectOnHit: []
+  PlayerHitSound: {fileID: 5120024643018267716, guid: ab98964b60149c241b739761d1e06d84, type: 3}
 --- !u!114 &2947708679365819854
 MonoBehaviour:
   m_ObjectHideFlags: 0

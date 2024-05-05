@@ -19,6 +19,8 @@ public class Player : SceneSingleton<Player>
 
     CharacterController cc;
 
+    public float maxHp = 100f;
+
     [SerializeField] GameObject tpsVCamRoot;
     [SerializeField] CinemachineVirtualCamera tpsVCam;   
     [SerializeField] Transform weaponPoint;
@@ -36,13 +38,17 @@ public class Player : SceneSingleton<Player>
     bool isReload = false;
     bool isActive = false;
 
-    public PlayerCombat combat = new PlayerCombat();
+    public PlayerCombat combat;
     PlayerCombatData data = new PlayerCombatData();
+
+    public GameObject PlayerHitSound;
 
     // CinemachineImpulseSource impulseSource;
 
     private void Awake()
     {
+        combat = new PlayerCombat(transform, maxHp);
+
         for (int i = 0; i < weaponPoint.childCount; i++)
         {
             Weapon weapon;
@@ -75,7 +81,6 @@ public class Player : SceneSingleton<Player>
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        combat.Init(transform, 100f);
         //tpsCmc = tpsVCam.GetComponent<CinemachineVirtualCamera>();        
         cc = GetComponent<CharacterController>();
         //impulseSource = GetComponent<CinemachineImpulseSource>();
@@ -86,6 +91,7 @@ public class Player : SceneSingleton<Player>
         WeaponChange(controlWeaponIndex);
 
         combat.OnDamaged += HitAnimPlay;
+        combat.OnDamaged += HitSoundPlay;
         combat.OnDead += DieAnimPlay;
 
         senst = 1;
@@ -365,6 +371,10 @@ public class Player : SceneSingleton<Player>
     private void HitAnimPlay()
     {
         animator.SetTrigger("Hit");
+    }
+    private void HitSoundPlay()
+    {
+        SFXManager.Instance.SoundOnAttach(transform, PlayerHitSound);
     }
     private void DieAnimPlay()
     {
