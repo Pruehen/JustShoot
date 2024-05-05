@@ -11,6 +11,6 @@ public class EnemyCombat : Combat
 
     private void SpawnDamageNumberUi(float damage)
     {
-        EffectManager.Instance.DamageNumberUiGenerate(_owner.transform.position , damage);
+        EffectManager.Instance.DamageNumberUiGenerate(_owner.transform , damage);
     }
 }

@@ -64,11 +64,11 @@ public class EffectManager : SceneSingleton<EffectManager>
         ObjectPoolManager.Instance.EnqueueObject(item);
     }
 
-    public void DamageNumberUiGenerate(Vector3 position, float damage)
+    public void DamageNumberUiGenerate(Transform target, float damage)
     {
         GameObject item = ObjectPoolManager.Instance.DequeueObject(damageNumberUi);
         item.transform.SetParent(damageUiParent);
-        item.transform.GetComponent<DamageNumberUi>().Init(damage.ToString(), position);
+        item.transform.GetComponent<DamageNumberUi>().Init(damage.ToString(), target);
         StartCoroutine(EnqueueObject(item, 3));
     }
 }
