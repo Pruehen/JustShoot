@@ -64,7 +64,10 @@ public class Weapon : MonoBehaviour
         {            
             bulletIst = ObjectPoolManager.Instance.DequeueObject(projectilePrf);//프리팹 생성
             bulletIst.transform.position = firePoint.position;//좌표 지정
-            bulletIst.transform.rotation = firePoint.rotation;//회전 지정
+
+            Vector3 randomDirection = Random.insideUnitSphere.normalized;
+            Quaternion randomRotation = Quaternion.AngleAxis(count * 0.1f, randomDirection);
+            bulletIst.transform.rotation = firePoint.rotation * randomRotation;//회전 지정
 
             bulletIst.GetComponent<Bullet>().Init(dmg, projectileVelocity, 5);//데미지, 탄속 지정
 
