@@ -157,13 +157,13 @@ public class Player : SceneSingleton<Player>
         
         Quaternion rotationWeapon = Quaternion.LookRotation(direction);
         rotationWeapon = Quaternion.Euler(rotationWeapon.eulerAngles.x, this.transform.rotation.eulerAngles.y, rotationWeapon.eulerAngles.z);
-        weaponPoint.rotation = Quaternion.Slerp(weaponPoint.rotation, rotationWeapon, Time.deltaTime * 6);
+        weaponPoint.rotation = Quaternion.Slerp(weaponPoint.rotation, rotationWeapon, Time.deltaTime * controlweapon.Operability() * 0.2f);
 
         direction = new Vector3(direction.x, 0, direction.z);
 
         Quaternion rotationBody = Quaternion.LookRotation(direction);
         //rotationBody = Quaternion.Euler(0, rotationBody.eulerAngles.y, 0);
-        this.transform.rotation = Quaternion.Slerp(this.transform.rotation, rotationBody, Time.deltaTime * 6);
+        this.transform.rotation = Quaternion.Slerp(this.transform.rotation, rotationBody, Time.deltaTime * controlweapon.Operability() * 0.2f);
     }
     void SetCamType(bool isFps)
     {
@@ -337,7 +337,7 @@ public class Player : SceneSingleton<Player>
         data.playerCurHp = combat.GetHp();
         data.controlWeaponName = controlweapon.gameObject.name;
         data.controlWeaponIndex = controlWeaponIndex;
-        data.cwMaxMag = controlweapon.magazinBulletcount();
+        data.cwMaxMag = controlweapon.MagazineBulletCount();
         data.cwCurMag = controlweapon.bullet;
         data.killCount = combat.GetKillCount();
     }

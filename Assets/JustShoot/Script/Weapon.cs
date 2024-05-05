@@ -21,9 +21,13 @@ public class Weapon : MonoBehaviour
 
     float delay;//무기 연사 속도 조절을 위한 변수
     public int bullet { get; private set; }//현재 무기의 남은 탄환 수
-    public int magazinBulletcount()
+    public int MagazineBulletCount()
     {
         return magazineBulletCount;
+    }
+    public float Operability()
+    {
+        return operability;
     }
 
     bool trigger;//무기의 트리거 상태 (true일 경우 무기 발사)
