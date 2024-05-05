@@ -242,6 +242,10 @@ public class Player : SceneSingleton<Player>
         controlweapon.ReloedStart();
         StartCoroutine(ReloadEnd());
     }
+    public void Recoil(float recoli)
+    {
+        mouseDeltaPos = new Vector2(Random.Range(-recoli, recoli), Random.Range(recoli, recoli*3)) * 0.2f;
+    }
     IEnumerator ReloadEnd()
     {
         yield return new WaitForSeconds(controlweapon.GetReloadTime());

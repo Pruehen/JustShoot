@@ -75,7 +75,11 @@ public class Weapon : MonoBehaviour
             //animator.SetTrigger("Fire");
             bullet--;
 
-            yield return new WaitForSeconds(delay);
+            Player.Instance.Recoil(recoil);
+            if (delay > 0)
+            {
+                yield return new WaitForSeconds(delay);
+            }
         }
     }
 
