@@ -29,7 +29,7 @@ public class Combat
 
     public GameObject[] additionalEffectOnHit;
     public Vector3 prevAttackersPos { get; internal set; }
-    public void Init(Transform owner, float maxHp, bool defaultEffectOnDamaged = true)
+    public Combat(Transform owner, float maxHp, bool defaultEffectOnDamaged = true)
     {
         _owner = owner;
         _maxHp = maxHp;

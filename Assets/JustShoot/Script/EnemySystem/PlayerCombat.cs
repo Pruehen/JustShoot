@@ -10,6 +10,9 @@ public class PlayerCombat : Combat
     private int killCount = 0;
     private float dealCount = 0f;
 
+    public PlayerCombat(Transform owner, float maxHp, bool defaultEffectOnDamaged = true) : base(owner, maxHp, defaultEffectOnDamaged)
+    {
+    }
     public void AddDealCount(float damage)
     {
         dealCount += damage;

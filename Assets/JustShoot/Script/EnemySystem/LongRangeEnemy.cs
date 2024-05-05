@@ -5,8 +5,6 @@ using UnityEngine.AI;
 
 public class LongRangeEnemy : BaseEnemy, IDamagable
 {
-    [SerializeField] protected Player player;
-    private EnemyCombat combat = new EnemyCombat();
     public enum State
     {
         IDLE, TRACE, ATTACK, DEAD
@@ -19,32 +17,15 @@ public class LongRangeEnemy : BaseEnemy, IDamagable
     public float attackDistance = 10f;
     public float aimRotateSpeed = 30f;
 
-    public bool isDie = false;
-
-    Transform enemyTrf;
-    [SerializeField] Transform playerTrf;
-    NavMeshAgent agent;
-    Animator animator;
-    Statemachine statemachine;
-    Collider col;
-
-    readonly int hashTrace = Animator.StringToHash("IsTrace");
-    readonly int hashAttack = Animator.StringToHash("IsAttack");
-    readonly int hashHit = Animator.StringToHash("Hit");
-    readonly int hashMoving = Animator.StringToHash("IsMoving");
-    readonly int hashDead = Animator.StringToHash("Dead");
+    public float maxHp = 60f;
 
     [SerializeField] Transform shootTransform;
     [SerializeField] GameObject projectilePrefab;
 
-    private void Awake()
+    protected override void Awake()
     {
-        player = Player.Instance;
-        playerTrf = player.transform;
-        enemyTrf = GetComponent<Transform>();
-        agent = GetComponent<NavMeshAgent>();
-        animator = GetComponent<Animator>();
-        col = GetComponent<Collider>();
+        base.Awake();
+        combat = new EnemyCombat(transform, maxHp);
 
         statemachine = gameObject.AddComponent<Statemachine>();
         statemachine.AddState(State.IDLE, new IdleState(this));
@@ -56,13 +37,16 @@ public class LongRangeEnemy : BaseEnemy, IDamagable
         agent.destination = playerTrf.position;
 
     }
-
-    private void Start()
+    protected override void OnEnable()
     {
-        combat.Init(transform, 60f);
+        base.OnEnable();
+        audioSource.clip = traceSFX;
+        audioSource.Play();
+    }
 
-        combat.OnDead += Dead;
-
+    protected override void Start()
+    {
+        base.Start();
         StartCoroutine(CheckEnemyState());
     }
 
@@ -96,6 +80,7 @@ public class LongRangeEnemy : BaseEnemy, IDamagable
     public void OnAnimationAttack()
     {
         //FireProjectile
+        audioSource.PlayOneShot(attackSFX);
 
         GameObject bulletIst = ObjectPoolManager.Instance.DequeueObject(projectilePrefab);
         bulletIst.transform.position = shootTransform.position;
@@ -142,21 +127,6 @@ public class LongRangeEnemy : BaseEnemy, IDamagable
             hit.point.DrawSphere(1f, Color.red);
             return false;
         }
-    }
-    public void TakeDamage(float damage)
-    {
-        combat.TakeDamage(damage);
-    }
-    private void Dead()
-    {
-        isDie = true;
-        col.enabled = false;
-        StartCoroutine(ReturnToPool());
-    }
-    IEnumerator ReturnToPool()
-    {
-        yield return new WaitForSeconds(15f);
-        ObjectPoolManager.Instance.EnqueueObject(gameObject);
     }
 
     class BaseEnemyState : BaseState
@@ -229,7 +199,10 @@ public class LongRangeEnemy : BaseEnemy, IDamagable
         public override void Enter()
         {
             owner.animator.SetTrigger(owner.hashDead);
+            owner.animator.SetBool(owner.hashIsDead, true);
             owner.agent.isStopped = true;
+            owner.audioSource.Stop();
+            owner.audioSource.PlayOneShot(owner.deadSFX);
         }
     }
 }

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class MutantEnemy : MonoBehaviour
+public class MutantEnemy : BaseEnemy
 {
     [SerializeField] protected Player player;
-    private Combat combat = new Combat();
+    private Combat combat;
     public enum State
     {
         IDLE, TRACE, LAUNCH, HOMING, ATTACK, DEAD
@@ -17,30 +17,15 @@ public class MutantEnemy : MonoBehaviour
     public float attackDistance = 16f;
     public float DamageDistance = 1f;
     public float aimRotateSpeed = 30f;
+    public float maxHp = 300f;
 
-    public bool isDie = false;
-
-    Transform enemyTrf;
-    [SerializeField] Transform playerTrf;
-    NavMeshAgent agent;
-    Animator animator;
-    Statemachine statemachine;
     Rigidbody rb;
 
-    readonly int hashTrace = Animator.StringToHash("IsTrace");
-    readonly int hashAttack = Animator.StringToHash("IsAttack");
     readonly int hashLaunch = Animator.StringToHash("Launch");
     readonly int hashHoming = Animator.StringToHash("IsHoming");
-    readonly int hashHit = Animator.StringToHash("Hit");
-    readonly int hashMoving = Animator.StringToHash("IsMoving");
-    readonly int hashDead = Animator.StringToHash("Dead");
-    private void Awake()
+    protected override void Awake()
     {
-        player = Player.Instance;
-        playerTrf = player.transform;
-        enemyTrf = GetComponent<Transform>();
-        agent = GetComponent<NavMeshAgent>();
-        animator = GetComponent<Animator>();
+        base.Awake();
         rb = GetComponent<Rigidbody>();
 
         statemachine = gameObject.AddComponent<Statemachine>();
@@ -52,14 +37,9 @@ public class MutantEnemy : MonoBehaviour
 
         agent.destination = playerTrf.position;
     }
-    private void Start()
+    protected override void Start()
     {
-        combat.Init(transform, 100f);
-
-        combat.OnDamaged += PlayHitAnim;
-        combat.OnDamagedWDamage += Player.Instance.combat.AddDealCount;
-        combat.OnDead += Player.Instance.combat.AddKillCount;
-        combat.OnDead += Dead;
+        base.Start();
 
         StartCoroutine(CheckEnemyState());
     }
@@ -118,21 +98,6 @@ public class MutantEnemy : MonoBehaviour
             Vector3 hitPosition = player.transform.position + Vector3.up;
             EffectManager.Instance.HitEffectGenenate(hitPosition, type);//ÂøÅº ÀÌÆåÆ® ¹ß»ý
         }
-    }
-    public void TakeDamage(float damage)
-    {
-        if (combat.TakeDamage(damage))
-        {
-            animator.SetTrigger(hashHit);
-        }
-    }
-    private void PlayHitAnim()
-    {
-        animator.SetTrigger(hashHit);
-    }
-    private void Dead()
-    {
-        isDie = true;
     }
     class BaseEnemyState : BaseState
     {

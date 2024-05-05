@@ -4,7 +4,7 @@ using UnityEngine;
 [System.Serializable]
 public class EnemyCombat : Combat
 {
-    public EnemyCombat() 
+    public EnemyCombat(Transform owner, float maxHp, bool defaultEffectOnDamaged = true) : base(owner, maxHp, defaultEffectOnDamaged)
     {
         OnDamagedWDamage += SpawnDamageNumberUi;
     }
