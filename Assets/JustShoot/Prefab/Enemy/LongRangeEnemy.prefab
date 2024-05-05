@@ -5918,7 +5918,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa6ef787b4e0e2e43b060c9cd79e92d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitSFX: {fileID: 0}
+  hitSFX: {fileID: 5205876836135176155, guid: e89a19e4e1e145c4594ac6e83873f439, type: 3}
   combat:
     _owner: {fileID: 0}
     initalMaxHp: 0
