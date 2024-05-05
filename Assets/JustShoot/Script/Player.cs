@@ -94,7 +94,7 @@ public class Player : SceneSingleton<Player>
     // Update is called once per frame
     void Update()
     {
-        if (!isActive)
+        if (isActive)
         {
             MoveOrder();//이동  
             RotateOrder();//캐릭터 및 총기 회전
@@ -112,7 +112,7 @@ public class Player : SceneSingleton<Player>
     }
     private void LateUpdate()
     {
-        if (!isActive)
+        if (isActive)
         {
             CamRotate();//카메라 회전
         }
@@ -169,13 +169,13 @@ public class Player : SceneSingleton<Player>
         
         Quaternion rotationWeapon = Quaternion.LookRotation(direction);
         rotationWeapon = Quaternion.Euler(rotationWeapon.eulerAngles.x, this.transform.rotation.eulerAngles.y, rotationWeapon.eulerAngles.z);
-        weaponPoint.rotation = Quaternion.Slerp(weaponPoint.rotation, rotationWeapon, Time.deltaTime * controlweapon.Operability() * 0.2f);
+        weaponPoint.rotation = Quaternion.Slerp(weaponPoint.rotation, rotationWeapon, Time.deltaTime * controlweapon.Operability() * 0.4f);
 
         direction = new Vector3(direction.x, 0, direction.z);
 
         Quaternion rotationBody = Quaternion.LookRotation(direction);
         //rotationBody = Quaternion.Euler(0, rotationBody.eulerAngles.y, 0);
-        this.transform.rotation = Quaternion.Slerp(this.transform.rotation, rotationBody, Time.deltaTime * controlweapon.Operability() * 0.2f);
+        this.transform.rotation = Quaternion.Slerp(this.transform.rotation, rotationBody, Time.deltaTime * controlweapon.Operability() * 0.4f);
     }
     void SetCamType(bool isFps)
     {
@@ -271,7 +271,7 @@ public class Player : SceneSingleton<Player>
     public void TakeDamage(float dmg)
     {
         combat.TakeDamage(dmg);
-        if(!isActive && combat.IsDead())
+        if(isActive && combat.IsDead())
         {
             isActive = true;
             SetCamType(false);
@@ -293,7 +293,7 @@ public class Player : SceneSingleton<Player>
     }
     void OnLeftClick(InputValue inputValue)//마우스 좌클릭
     {
-        if (!isActive)
+        if (isActive)
         {
             float isClick = inputValue.Get<float>();
 
@@ -310,7 +310,7 @@ public class Player : SceneSingleton<Player>
     }
     void OnRightClick(InputValue inputValue)//마우스 우클릭
     {
-        if (!isActive)
+        if (isActive)
         {
             float isClick = inputValue.Get<float>();
 
@@ -331,7 +331,7 @@ public class Player : SceneSingleton<Player>
     }
     void OnReload(InputValue inputValue)
     {
-        if (!isActive)
+        if (isActive)
         {
             float isClick = inputValue.Get<float>();
 
