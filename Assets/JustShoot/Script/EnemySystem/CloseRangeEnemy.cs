@@ -15,6 +15,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
 
     public float traceDistance = 10;
     public float attackDistance = 2;
+    public float aimRotateSpeed = 30f;
 
     public bool isDie = false;
 
@@ -98,7 +99,7 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
             //플레이어에게 데미지 추가
             player.TakeDamage(10f);
             int type = 1;
-            Vector3 hitPosition = player.transform.position;
+            Vector3 hitPosition = player.transform.position + Vector3.up;
             EffectManager.Instance.HitEffectGenenate(hitPosition, type);//착탄 이펙트 발생
         }
     }
@@ -184,6 +185,12 @@ public class CloseRangeEnemy : MonoBehaviour, IDamagable
                 owner.animator.SetBool(owner.hashMoving, false);
             }
 
+            Vector3 pos = owner.transform.position;
+            Vector3 target = owner.playerTrf.position;
+            Vector3 desiredDir = -pos + target;
+            desiredDir = new Vector3(desiredDir.x, 0f, desiredDir.z);
+            desiredDir = desiredDir.normalized;
+            owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, Quaternion.LookRotation(desiredDir), Time.deltaTime * owner.aimRotateSpeed);
         }
     }
     class DeadState : BaseEnemyState
