@@ -40,8 +40,13 @@ public class Statemachine : MonoBehaviour
     }
     public void ChangeState(string stateName)
     {
+        BaseState stateToChange = stateDic[stateName];
+        if(curState == stateToChange)
+        {
+            return;
+        }
         curState.Exit();
-        curState = stateDic[stateName];
+        curState = stateToChange;
         curState.Enter();
     }
     public void InitState<T>(T stateType) where T: Enum
