@@ -16,8 +16,11 @@ public class Timer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(remainTime > 0.01f)
-            remainTime -= Time.deltaTime;
+        if (Player.Instance.onPlay)
+        {
+            if (remainTime > 0.01f)
+                remainTime -= Time.deltaTime;
+        }
 
         UpdateTime();
     }

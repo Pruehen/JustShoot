@@ -37,6 +37,7 @@ public class Player : SceneSingleton<Player>
 
     bool isReload = false;
     bool isActive = false;
+    public bool onPlay { get; private set; }
 
     public PlayerCombat combat;
     PlayerCombatData data = new PlayerCombatData();
@@ -58,8 +59,8 @@ public class Player : SceneSingleton<Player>
             }
         }
         tpsVCamRoot.transform.parent = null;
-
-        WeaponSelect(0, 1, 2);//더미 코드. 무기 선택 UI가 구현되면 이 메서드 호출은 제거할 것
+        onPlay = false;
+        //WeaponSelect(0, 1, 2);//더미 코드. 무기 선택 UI가 구현되면 이 메서드 호출은 제거할 것
     }
 
     /// <summary>
@@ -75,6 +76,8 @@ public class Player : SceneSingleton<Player>
         usingWeapons.Add(weaponsList[weaponIndex3]);
 
         isActive = true;
+        onPlay = true;
+        WeaponChange(0);
     }
 
     // Start is called before the first frame update
@@ -111,7 +114,7 @@ public class Player : SceneSingleton<Player>
 
             SetCombatData();
         }
-        else
+        else if(onPlay)
         {
             DeadCamMove();
         }
@@ -279,7 +282,7 @@ public class Player : SceneSingleton<Player>
         combat.TakeDamage(dmg);
         if(isActive && combat.IsDead())
         {
-            isActive = true;
+            isActive = false;
             SetCamType(false);
         }
     }
