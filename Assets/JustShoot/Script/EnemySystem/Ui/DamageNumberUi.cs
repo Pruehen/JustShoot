@@ -25,12 +25,12 @@ public class DamageNumberUi : MonoBehaviour
 
     private void Update()
     {
-        lifeTime += Time.deltaTime;
+        age += Time.deltaTime;
         Vector3 pos = Camera.main.WorldToScreenPoint(target.position);
         Vector3 offset = new Vector3(100f, 100f);
         pos += offset;
-        pos += velocity * lifeTime;
-        damageui.fontSize = fontSize * lifeTime - age;
+        pos += velocity * age;
+        damageui.fontSize = fontSize * (lifeTime - age);
         damageui.rectTransform.position = pos;
         StartCoroutine(EffectManager.Instance.EnqueueObject(gameObject, lifeTime));
     }
