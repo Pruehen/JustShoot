@@ -22,6 +22,7 @@ public class LongRangeEnemy : BaseEnemy, IDamagable
     [SerializeField] Transform shootTransform;
     [SerializeField] GameObject projectilePrefab;
 
+
     protected override void Awake()
     {
         base.Awake();
@@ -57,7 +58,7 @@ public class LongRangeEnemy : BaseEnemy, IDamagable
             yield return new WaitForSeconds(0.3f);
 
             float distance = Vector3.Distance(playerTrf.position, enemyTrf.position);
-            if (distance <= attackDistance && IsTargetVisible())
+            if (distance <= attackDistance && IsTargetVisible(shootTransform))
             {
                 statemachine.ChangeState(State.ATTACK);
                 state = State.ATTACK;
@@ -93,40 +94,6 @@ public class LongRangeEnemy : BaseEnemy, IDamagable
 
         EffectManager.Instance.FireEffectGenenate(shootTransform.position, shootTransform.rotation);
 
-    }
-    private bool IsTargetVisible()
-    {
-        Vector3 targetPos = player.transform.position + Vector3.up;
-        Vector3 targetDir = (- shootTransform.position + targetPos).normalized;
-        float dist = Vector3.Distance(shootTransform.position , player.transform.position);
-        Vector3 originPos = shootTransform.position + targetDir;
-
-
-        //bool isAimeAligned = Vector3.Dot(targetDir, transform.forward) >= .99f;
-        //if (isAimeAligned)
-        //{
-        //    this.isAimeAligned = true;
-        //}
-
-        Ray sightRay = new Ray(originPos, targetDir);
-        Physics.Raycast(sightRay, out RaycastHit hit, dist);
-        Debug.DrawRay(sightRay.origin, sightRay.direction * dist, Color.yellow);
-
-        if(hit.collider == null)
-        {
-            Debug.Log("NothingHit");
-            return true;
-        }
-        else if (hit.collider.CompareTag("Player"))
-        {
-            hit.point.DrawSphere(1f, Color.blue);
-            return true;
-        }
-        else
-        {
-            hit.point.DrawSphere(1f, Color.red);
-            return false;
-        }
     }
 
     class BaseEnemyState : BaseState
@@ -183,7 +150,6 @@ public class LongRangeEnemy : BaseEnemy, IDamagable
         public override void Update()
         {
             //플레이어 조준 완료시 state Aimed 조건을 설정함
-            owner.IsTargetVisible();
             Vector3 pos = owner.transform.position;
             Vector3 target = owner.playerTrf.position;
             Vector3 desiredDir = -pos + target;

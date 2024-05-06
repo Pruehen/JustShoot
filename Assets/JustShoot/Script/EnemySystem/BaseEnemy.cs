@@ -71,6 +71,42 @@ public class BaseEnemy : MonoBehaviour, IDamagable
         EffectManager.Instance.DeadEffectGenerate(transform.position);
         StartCoroutine(ReturnToPool());
     }
+
+    protected bool IsTargetVisible(Transform origin)
+    {
+        Vector3 targetPos = player.transform.position + Vector3.up;
+        Vector3 targetDir = (-origin.position + targetPos).normalized;
+        float dist = Vector3.Distance(origin.position, player.transform.position);
+        Vector3 originPos = origin.position + targetDir;
+
+
+        //bool isAimeAligned = Vector3.Dot(targetDir, transform.forward) >= .99f;
+        //if (isAimeAligned)
+        //{
+        //    this.isAimeAligned = true;
+        //}
+
+        Ray sightRay = new Ray(originPos, targetDir);
+        Physics.Raycast(sightRay, out RaycastHit hit, dist);
+        Debug.DrawRay(sightRay.origin, sightRay.direction * dist, Color.yellow);
+
+        if (hit.collider == null)
+        {
+            Debug.Log("NothingHit");
+            return true;
+        }
+        else if (hit.collider.CompareTag("Player"))
+        {
+            hit.point.DrawSphere(1f, Color.blue);
+            return true;
+        }
+        else
+        {
+            hit.point.DrawSphere(1f, Color.red);
+            return false;
+        }
+    }
+
     protected virtual IEnumerator ReturnToPool()
     {
         yield return new WaitForSeconds(15f);

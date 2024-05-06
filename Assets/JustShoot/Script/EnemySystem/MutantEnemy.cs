@@ -24,6 +24,7 @@ public class MutantEnemy : BaseEnemy
     readonly int hashIsAlmostTarget = Animator.StringToHash("IsAlmostTarget"); 
 
     bool isGrouonded = false;
+    [SerializeField] Transform sight;
     protected override void Awake()
     {
         base.Awake();
@@ -57,7 +58,7 @@ public class MutantEnemy : BaseEnemy
             yield return new WaitForSeconds(0.3f);
 
             float distance = Vector3.Distance(playerTrf.position, enemyTrf.position);
-            if (distance <= attackDistance || animator.GetCurrentAnimatorStateInfo(0).IsName("MutantJumpAttack") || agent.isOnNavMesh == false)
+            if (distance <= attackDistance && IsTargetVisible(sight))
             {
                 statemachine.ChangeState(State.ATTACK);
                 state = State.ATTACK;
@@ -81,7 +82,6 @@ public class MutantEnemy : BaseEnemy
     //적 공격 애니메이션에서 실행됨
     private void OnAnimationLaunch()
     {
-
         Vector3 targetDir = (-transform.position + playerTrf.position).normalized;
         float angleV = Mathf.Atan2(targetDir.y, 1f);
         angleV = Mathf.Rad2Deg * angleV;
@@ -94,7 +94,7 @@ public class MutantEnemy : BaseEnemy
     //적 공격 애니메이션에서 실행됨
     private void OnAimationAttak()
     {
-        gameObject.layer = LayerMask.NameToLayer("Enemy");
+        gameObject.layer = LayerMask.NameToLayer("HugeEnemy");
         animator.SetBool(hashIsAlmostTarget, false);
         //DealDamage
         float distance = Vector3.Distance(player.transform.position, transform.position);
@@ -242,6 +242,7 @@ public class MutantEnemy : BaseEnemy
             else
             {
                 prevPlayerPos = SentinelVec;
+                owner.animator.SetBool(owner.hashIsAlmostTarget, false);
             }
         }
     }
