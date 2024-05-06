@@ -77,6 +77,7 @@ public class TitleUI : MonoBehaviour
         {
             Player.Instance.WeaponSelect(selectWeapons[0], selectWeapons[1], selectWeapons[2]);
             gameObject.SetActive(false);
+            Cursor.lockState = CursorLockMode.Locked;
         }
     }
 }
