@@ -64,13 +64,13 @@ public class BaseEnemy : MonoBehaviour, IDamagable
     {
         animator.SetTrigger(hashHit);
     }
-    private void Dead()
+    protected virtual void Dead()
     {
         isDie = true;
         col.enabled = false;
         StartCoroutine(ReturnToPool());
     }
-    IEnumerator ReturnToPool()
+    protected IEnumerator ReturnToPool()
     {
         yield return new WaitForSeconds(15f);
         ObjectPoolManager.Instance.EnqueueObject(gameObject);
