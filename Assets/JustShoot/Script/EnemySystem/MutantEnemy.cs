@@ -38,12 +38,12 @@ public class MutantEnemy : BaseEnemy
         statemachine.AddState(State.DEAD, new DeadState(this));
         statemachine.InitState(State.IDLE);
 
-        agent.destination = playerTrf.position;
     }
     protected override void Start()
     {
         base.Start();
 
+        agent.destination = playerTrf.position;
         StartCoroutine(CheckEnemyState());
     }
     private void FixedUpdate()
@@ -88,11 +88,13 @@ public class MutantEnemy : BaseEnemy
         angleV = (angleV > -15f) ? angleV + 30f : -angleV;
         rb.velocity = ProjectileCalc.CalcLaunch(transform.position, playerTrf.position, angleV);
         animator.SetBool(hashIsAlmostTarget, false);
+        gameObject.layer = LayerMask.NameToLayer("EnemyProjectile");
     }
 
     //적 공격 애니메이션에서 실행됨
     private void OnAimationAttak()
     {
+        gameObject.layer = LayerMask.NameToLayer("Enemy");
         animator.SetBool(hashIsAlmostTarget, false);
         //DealDamage
         float distance = Vector3.Distance(player.transform.position, transform.position);
@@ -116,11 +118,14 @@ public class MutantEnemy : BaseEnemy
 
     protected override void Dead()
     {
-        isDie = true;
-
-        col.enabled = false;
-        
         StartCoroutine(ReturnToPool());
+        isDie = true;
+        gameObject.layer = LayerMask.NameToLayer("EnemyProjectile");
+    }
+
+    protected override IEnumerator ReturnToPool()
+    {
+        yield return base.ReturnToPool();
     }
 
     class BaseEnemyState : BaseState

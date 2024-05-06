@@ -71,7 +71,7 @@ public class BaseEnemy : MonoBehaviour, IDamagable
         EffectManager.Instance.DeadEffectGenerate(transform.position);
         StartCoroutine(ReturnToPool());
     }
-    protected IEnumerator ReturnToPool()
+    protected virtual IEnumerator ReturnToPool()
     {
         yield return new WaitForSeconds(15f);
         ObjectPoolManager.Instance.EnqueueObject(gameObject);
