@@ -59,7 +59,7 @@ public class Player : SceneSingleton<Player>
         }
         tpsVCamRoot.transform.parent = null;
 
-        WeaponSelect(0, 1, 2);//더미 코드. 무기 선택 UI가 구현되면 이 메서드 호출은 제거할 것
+        //WeaponSelect(0, 1, 2);//더미 코드. 무기 선택 UI가 구현되면 이 메서드 호출은 제거할 것
     }
 
     /// <summary>
