@@ -83,7 +83,7 @@ public class Player : SceneSingleton<Player>
     // Start is called before the first frame update
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.lockState = CursorLockMode.Locked;
         //tpsCmc = tpsVCam.GetComponent<CinemachineVirtualCamera>();        
         cc = GetComponent<CharacterController>();
         //impulseSource = GetComponent<CinemachineImpulseSource>();
@@ -97,7 +97,7 @@ public class Player : SceneSingleton<Player>
         combat.OnDamaged += HitSoundPlay;
         combat.OnDead += DieAnimPlay;
 
-        senst = 1;
+        senst = 0.5f;
     }
 
     // Update is called once per frame
