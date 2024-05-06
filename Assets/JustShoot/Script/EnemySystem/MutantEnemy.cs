@@ -15,7 +15,7 @@ public class MutantEnemy : BaseEnemy
 
     public float traceDistance = 9999f;
     public float attackDistance = 16f;
-    public float damageDistance = 1f;
+    public float damageDistance = 2f;
     public float aimRotateSpeed = 30f;
     public float maxHp = 300f;
 
