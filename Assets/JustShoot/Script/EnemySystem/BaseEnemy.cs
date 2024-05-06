@@ -68,6 +68,7 @@ public class BaseEnemy : MonoBehaviour, IDamagable
     {
         isDie = true;
         col.enabled = false;
+        EffectManager.Instance.DeadEffectGenerate(transform.position);
         StartCoroutine(ReturnToPool());
     }
     protected IEnumerator ReturnToPool()
