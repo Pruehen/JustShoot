@@ -85,15 +85,14 @@ public class LongRangeEnemy : BaseEnemy, IDamagable
 
         GameObject bulletIst = ObjectPoolManager.Instance.DequeueObject(projectilePrefab);
         bulletIst.transform.position = shootTransform.position;
-        bulletIst.transform.rotation = shootTransform.rotation;
 
         float initialSpeed = 10f;
 
         Vector3 velocityForIntecept = ProjectileCalc.CalculateInitialVelocity(Player.Instance.transform, shootTransform, initialSpeed, Vector3.up);
-        bulletIst.GetComponent<Rigidbody>().velocity = velocityForIntecept;
+        bulletIst.transform.rotation = Quaternion.LookRotation(velocityForIntecept);
+        bulletIst.transform.GetComponent<EnemyProjectile>().Init(10, velocityForIntecept.magnitude, 10f);
 
         EffectManager.Instance.FireEffectGenenate(shootTransform.position, shootTransform.rotation);
-
     }
 
     class BaseEnemyState : BaseState
