@@ -5,7 +5,8 @@ using UnityEngine;
 public class DamageNumberUi : MonoBehaviour
 {
     Vector3 velocity = Vector3.up * 300f;
-    float lifeTime = 0f;
+    float age = 0f;
+    public float lifeTime = 1f;
     TMPro.TMP_Text damageui;
     Transform target;
     float fontSize = 50f;
@@ -18,7 +19,7 @@ public class DamageNumberUi : MonoBehaviour
     {
         damageui.text = text;
         this.target = target;
-        lifeTime = 0f;
+        age = 0f;
         damageui.fontSize = fontSize;
     }
 
@@ -29,7 +30,8 @@ public class DamageNumberUi : MonoBehaviour
         Vector3 offset = new Vector3(100f, 100f);
         pos += offset;
         pos += velocity * lifeTime;
-        damageui.fontSize = fontSize * (1f - lifeTime);
+        damageui.fontSize = fontSize * lifeTime - age;
         damageui.rectTransform.position = pos;
+        StartCoroutine(EffectManager.Instance.EnqueueObject(gameObject, lifeTime));
     }
 }

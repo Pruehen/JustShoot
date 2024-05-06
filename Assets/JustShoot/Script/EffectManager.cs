@@ -58,7 +58,7 @@ public class EffectManager : SceneSingleton<EffectManager>
         }
     }
 
-    IEnumerator EnqueueObject(GameObject item, float time)
+    public IEnumerator EnqueueObject(GameObject item, float time)
     {
         yield return new WaitForSeconds(time);
         ObjectPoolManager.Instance.EnqueueObject(item);

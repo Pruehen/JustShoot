@@ -11,51 +11,32 @@ public static class ProjectileCalc
         return (-origin.position + (target.position + offset)).normalized * initialSpeed;
     }
 
+    public static Vector3 CalcLaunch(Vector3 origin, Vector3 target, float angle)
+    {
+        float g = Physics.gravity.magnitude;
+        Vector3 dirToTarget = -origin + target;
+        float distH = new Vector3(dirToTarget.x,0f,dirToTarget.z).magnitude;
+        float distV = dirToTarget.y;
+        float D = distH + distV;
+        float angleV = angle * Mathf.Deg2Rad;
+
+        float v0 = Mathf.Sqrt((D * g) / (Mathf.Sin(2f * angleV))); 
+        
+
+        dirToTarget.y = 0f;
+        dirToTarget = dirToTarget.normalized;
+
+        Quaternion lookRotation = Quaternion.LookRotation(dirToTarget);
+        Quaternion additionalAngle = Quaternion.Euler(angle, 0f, 0f);
+        Vector3 lauchDir=(lookRotation*additionalAngle) * Vector3.forward;
+        lauchDir.y = -lauchDir.y;
+        Vector3 res = lauchDir *v0;
+        if(float.IsNaN(res.x))
+            return Vector3.zero;
+        return res;
+    }
+
     //chatGpt가 만들어준거 약간 수정
-    // Calculate the initial velocity needed to reach a target in a given time
-    public static Vector3 CalculateInitialVelocity(Vector3 startPosition, Vector3 targetPosition, float timeToTarget, float gravity)
-    {
-        Vector3 displacement = targetPosition - startPosition;
-        Vector3 horizontalDisplacement = new Vector3(displacement.x, 0, displacement.z);
-        float verticalDisplacement = displacement.y;
-
-        Vector3 initialVelocity = new Vector3();
-        initialVelocity.x = horizontalDisplacement.x / timeToTarget;
-        initialVelocity.z = horizontalDisplacement.z / timeToTarget;
-        initialVelocity.y = (verticalDisplacement / timeToTarget) + 0.5f * Mathf.Abs(gravity) * timeToTarget;
-
-        return initialVelocity;
-    }
-
-    // Calculate the rotation required to face a target
-    public static Quaternion CalculateTargetRotation(Vector3 currentPosition, Vector3 targetPosition)
-    {
-        Vector3 directionToTarget = (targetPosition - currentPosition).normalized;
-        return Quaternion.LookRotation(directionToTarget);
-    }
-    // Calculate the steering force towards the target
-    public static Vector3 CalculateSteeringForce(Vector3 currentPosition, Vector3 targetPosition, Vector3 currentVelocity, float maxSpeed, float maxSteeringForce)
-    {
-        Vector3 desiredVelocity = (targetPosition - currentPosition).normalized * maxSpeed;
-        Vector3 steeringForce = desiredVelocity - currentVelocity;
-        return Vector3.ClampMagnitude(steeringForce, maxSteeringForce); // Limit the change in velocity
-    }
-
-    // Apply the steering force to the current velocity
-    public static Vector3 ApplySteeringForce(Vector3 currentVelocity, Vector3 steeringForce, float maxSpeed)
-    {
-        Vector3 newVelocity = currentVelocity + steeringForce;
-        return Vector3.ClampMagnitude(newVelocity, maxSpeed); // Ensure the velocity doesn't exceed max speed
-    }
-
-    // Optional: Adjust object rotation to face velocity
-    public static Quaternion CalculateRotation(Vector3 velocity)
-    {
-        if (velocity != Vector3.zero)
-            return Quaternion.LookRotation(velocity.normalized);
-        else
-            return Quaternion.identity;
-    }
 
     //근데 타겟과 거리 계산에서 움직인 이후의 거리와 투사체 교차 시간이 서로 필요해서 약간의 오차는 있을듯
     //public static Vector3 CalculateInitialVelocity(Transform target, Transform origin, float initialSpeed, Vector3 offset)
