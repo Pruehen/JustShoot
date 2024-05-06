@@ -141,7 +141,7 @@ MonoBehaviour:
   state: 0
   traceDistance: 999
   attackDistance: 8
-  damageDistance: 1
+  damageDistance: 2
   aimRotateSpeed: 30
   maxHp: 300
 --- !u!1 &7982773717380322171

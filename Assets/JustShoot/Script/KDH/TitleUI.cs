@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -24,11 +25,6 @@ public class TitleUI : MonoBehaviour
     {
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-
-        if (selectWeapons.Count == 3)
-        {
-            Player.Instance.WeaponSelect(selectWeapons[0], selectWeapons[1], selectWeapons[2]);
-        }
     }
 
     public void OnLeftButtonClick()
@@ -66,14 +62,21 @@ public class TitleUI : MonoBehaviour
                 }
             }
         }
-        if(isAdd)
+        if(isAdd && selectWeapons.Count < 3)
         {
             selectWeapons.Add(nowWeapon);
         }
         else
         {
-            Debug.Log("같은 무기. 추가 불가");
+            Debug.Log("추가 불가 : 같은 무기거나, 3개 다 고름");
+        }   
+    }
+    public void OnConfirmButtonClick()
+    {
+        if (selectWeapons.Count == 3)
+        {
+            Player.Instance.WeaponSelect(selectWeapons[0], selectWeapons[1], selectWeapons[2]);
+            gameObject.SetActive(false);
         }
-            
     }
 }
