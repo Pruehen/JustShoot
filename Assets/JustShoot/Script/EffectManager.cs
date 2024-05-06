@@ -69,7 +69,7 @@ public class EffectManager : SceneSingleton<EffectManager>
         StartCoroutine(EnqueueObject(item, 2));
     }
 
-    IEnumerator EnqueueObject(GameObject item, float time)
+    public IEnumerator EnqueueObject(GameObject item, float time)
     {
         yield return new WaitForSeconds(time);
         ObjectPoolManager.Instance.EnqueueObject(item);
@@ -79,7 +79,8 @@ public class EffectManager : SceneSingleton<EffectManager>
     {
         GameObject item = ObjectPoolManager.Instance.DequeueObject(damageNumberUi);
         item.transform.SetParent(damageUiParent);
-        item.transform.GetComponent<DamageNumberUi>().Init(damage.ToString(), target);
+        
+        item.transform.GetComponent<DamageNumberUi>().Init(damage, target);
         StartCoroutine(EnqueueObject(item, 1));
     }
 }
