@@ -12,6 +12,11 @@ public class EnemySpawner : MonoBehaviour
     public float spawnTime = 1.0f;
     public int m_Count;
 
+    public Queue<GameObject> m_SpecialEnemyQueue = new Queue<GameObject>();
+    public GameObject[] specialEnemyPrefabs;
+    public int m_SpecialEnemyCount = 15;
+    public int spawnSpecialEnemyPerKill = 10;
+
     public float rangePosX = 2.5f;
     public float rangePosY = 2.5f;
 
@@ -32,6 +37,9 @@ public class EnemySpawner : MonoBehaviour
 
             m_Queue.Enqueue(m_object);
         }
+        InitSpectialEnemy();
+        Player.Instance.combat.OnKill += SpawnSpecialEnemy;
+
         StartCoroutine(EnemySpawn());
     }
 
@@ -47,6 +55,29 @@ public class EnemySpawner : MonoBehaviour
 
             yield return new WaitForSeconds(spawnTime);
             //m_Queue.Enqueue(prefabs[0]);
+        }
+    }
+    void InitSpectialEnemy()
+    {
+        for (int i = 0; i < m_SpecialEnemyCount; i++)
+        {
+            int e_rand = Random.Range(0, specialEnemyPrefabs.Length);
+            int t_rand = Random.Range(0, OuterSpawner.Length);
+            GameObject m_object = ObjectPoolManager.Instance.DequeueObject(specialEnemyPrefabs[e_rand]);
+
+            // ;
+            m_object.transform.position = positionRandom(OuterSpawner[t_rand].position);
+            m_object.gameObject.SetActive(false);
+
+            m_SpecialEnemyQueue.Enqueue(m_object);
+        }
+    }
+    void SpawnSpecialEnemy()
+    {
+        if (Player.Instance.onPlay && Player.Instance.combat.GetKillCount() % spawnSpecialEnemyPerKill == 0)
+        {
+            GameObject Enemy = m_SpecialEnemyQueue.Dequeue();
+            Enemy.SetActive(true);
         }
     }
 

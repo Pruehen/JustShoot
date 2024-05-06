@@ -20,7 +20,7 @@ public class CloseRangeEnemy : BaseEnemy
     protected override void Awake()
     {
         base.Awake();
-        combat = new EnemyCombat(transform, maxHp);
+        combat.Init(transform, maxHp);
 
         statemachine = gameObject.AddComponent<Statemachine>();
         statemachine.AddState(State.IDLE, new IdleState(this));

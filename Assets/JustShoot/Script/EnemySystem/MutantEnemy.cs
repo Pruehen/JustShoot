@@ -30,7 +30,7 @@ public class MutantEnemy : BaseEnemy
         base.Awake();
         rb = GetComponent<Rigidbody>();
 
-        combat = new EnemyCombat(transform, maxHp);
+        combat.Init(transform, maxHp);
 
         statemachine = gameObject.AddComponent<Statemachine>();
         statemachine.AddState(State.IDLE, new IdleState(this));
@@ -89,6 +89,8 @@ public class MutantEnemy : BaseEnemy
         rb.velocity = ProjectileCalc.CalcLaunch(transform.position, playerTrf.position, angleV);
         animator.SetBool(hashIsAlmostTarget, false);
         gameObject.layer = LayerMask.NameToLayer("EnemyProjectile");
+
+        audioSource.PlayOneShot(attackSFX);
     }
 
     //적 공격 애니메이션에서 실행됨
@@ -102,9 +104,8 @@ public class MutantEnemy : BaseEnemy
 
         Vector3 enemyToPlayerDir = (-transform.position + player.transform.position).normalized;
         //참고 https://www.falstad.com/dotproduct/
-        bool inAttackDirection = Vector3.Dot(transform.forward, enemyToPlayerDir) > .8f; // dot product 로 적이 보는 방향과 적의 위치까지의 방향이 비슷하면 데미지
 
-        bool damagable = closeEnogh && inAttackDirection;
+        bool damagable = closeEnogh;
 
         if (damagable)//Todo: 공격 거리 계산을 다시 하고 싶을 수 있음
         {
@@ -156,10 +157,10 @@ public class MutantEnemy : BaseEnemy
         {
             owner.agent.SetDestination(owner.playerTrf.position);
 
+            owner.agent.nextPosition = owner.transform.position;
             owner.agent.updatePosition = true;
             owner.agent.updateRotation = true;
             owner.agent.isStopped = false;
-            owner.agent.nextPosition = owner.transform.position;
             owner.animator.SetBool(owner.hashTrace, true);
             owner.animator.SetBool(owner.hashAttack, false);
         }
@@ -174,6 +175,10 @@ public class MutantEnemy : BaseEnemy
             {
                 owner.animator.SetBool(owner.hashMoving, false);
             }
+            if(owner.isGrouonded)
+            {
+                owner.animator.SetBool(owner.hashIsAlmostTarget, true);
+            }
 
         }
     }
@@ -187,13 +192,13 @@ public class MutantEnemy : BaseEnemy
         {
             owner.animator.SetBool(owner.hashTrace, true);
             owner.animator.SetBool(owner.hashAttack, true);
+            owner.agent.nextPosition = owner.transform.position;
             owner.agent.updatePosition = false;
             owner.agent.updateRotation = false;
             owner.agent.isStopped = true;
             prevPlayerPos = SentinelVec;
         }
         Vector3 prevPlayerPos = Vector3.positiveInfinity;
-        bool firstTouchGround = false;
         public override void FixedUpdate()
         {
             Vector3 pos = owner.transform.position;
@@ -218,25 +223,25 @@ public class MutantEnemy : BaseEnemy
                 {
                     owner.animator.SetBool(owner.hashIsAlmostTarget, true);
                 }
+                else
+                {
+                    float deltaDist = (curPlayerPos - prevPlayerPos).magnitude;
+                    Vector3 targetDir = (-owner.rb.position + owner.playerTrf.position).normalized;
+                    Vector3 targetDirH = targetDir;
+                    targetDirH.y = 0f;
+                    targetDirH = targetDirH.normalized;
 
+                    Vector3 velocityH = owner.rb.velocity;
+                    velocityH.y = 0f;
+                    float velocityHMag = velocityH.magnitude;
 
-                float deltaDist = (curPlayerPos - prevPlayerPos).magnitude;
-                Vector3 targetDir = (-owner.rb.position + owner.playerTrf.position).normalized;
-                Vector3 targetDirH = targetDir;
-                targetDirH.y = 0f;
-                targetDirH = targetDirH.normalized;
+                    Vector3 newVelocityH = targetDirH * velocityHMag;
 
-                Vector3 velocityH = owner.rb.velocity;
-                velocityH.y = 0f;
-                float velocityHMag = velocityH.magnitude;
+                    Vector3 result = new Vector3(newVelocityH.x, owner.rb.velocity.y, newVelocityH.z);
+                    result += targetDirH * deltaDist * .5f;
 
-                Vector3 newVelocityH = targetDirH * velocityHMag;
-
-                Vector3 result = new Vector3(newVelocityH.x, owner.rb.velocity.y, newVelocityH.z);
-                result += targetDirH * deltaDist;
-
-                owner.rb.velocity = result;
-
+                    owner.rb.velocity = result;
+                }
                 prevPlayerPos = curPlayerPos;
             }
             else
@@ -253,6 +258,7 @@ public class MutantEnemy : BaseEnemy
         public override void Enter()
         {
             owner.animator.SetTrigger(owner.hashDead);
+            owner.audioSource.PlayOneShot(owner.deadSFX);
         }
     }
 }

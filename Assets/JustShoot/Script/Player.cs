@@ -39,7 +39,7 @@ public class Player : SceneSingleton<Player>
     bool isActive = false;
     public bool onPlay { get; private set; }
 
-    public PlayerCombat combat;
+    public PlayerCombat combat = new PlayerCombat();
     PlayerCombatData data = new PlayerCombatData();
 
     public GameObject PlayerHitSound;
@@ -48,7 +48,7 @@ public class Player : SceneSingleton<Player>
 
     private void Awake()
     {
-        combat = new PlayerCombat(transform, maxHp);
+        combat.Init(transform, maxHp);
 
         for (int i = 0; i < weaponPoint.childCount; i++)
         {

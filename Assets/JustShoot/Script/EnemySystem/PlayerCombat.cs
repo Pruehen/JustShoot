@@ -9,19 +9,23 @@ public class PlayerCombat : Combat
 {
     private int killCount = 0;
     private float dealCount = 0f;
+    public Action OnKill;
+    public GameObject killSfx;
 
-    public PlayerCombat(Transform owner, float maxHp, bool defaultEffectOnDamaged = true) : base(owner, maxHp, defaultEffectOnDamaged)
+    public override void Init(Transform owner, float maxHp)
     {
+        base.Init(owner, maxHp);
     }
+
     public void AddDealCount(float damage)
     {
         dealCount += damage;
-        Debug.Log("addDealCount");
     }
     public void AddKillCount()
     {
         killCount++;
-        Debug.Log("addKillCount");
+        SFXManager.Instance.SoundOnAttach(_owner.transform, killSfx);
+        OnKill?.Invoke();
     }
     public int GetKillCount()
     {

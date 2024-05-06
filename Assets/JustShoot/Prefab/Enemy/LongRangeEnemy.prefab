@@ -5934,7 +5934,7 @@ MonoBehaviour:
   idleSFX: {fileID: 8300000, guid: 206cabd4727c1ad48acbee403d09edf8, type: 3}
   traceSFX: {fileID: 8300000, guid: a312e175cd75d784bb6ac9df0c6ebb64, type: 3}
   attackSFX: {fileID: 8300000, guid: 15e1c77467e32224580d699c2455268b, type: 3}
-  deadSFX: {fileID: 8300000, guid: de80992bc860e294b879c791dab48528, type: 3}
+  deadSFX: {fileID: 8300000, guid: 3a04f0af259c6824995754c41798605c, type: 3}
   state: 0
   isAimeAligned: 0
   traceDistance: 9999

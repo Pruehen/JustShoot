@@ -4,9 +4,11 @@ using UnityEngine;
 [System.Serializable]
 public class EnemyCombat : Combat
 {
-    public EnemyCombat(Transform owner, float maxHp, bool defaultEffectOnDamaged = true) : base(owner, maxHp, defaultEffectOnDamaged)
+    public override void Init(Transform owner, float maxHp)
     {
+        base.Init(owner, maxHp);
         OnDamagedWDamage += SpawnDamageNumberUi;
+        _invincibleTime = 0f;
     }
 
     private void SpawnDamageNumberUi(float damage)
