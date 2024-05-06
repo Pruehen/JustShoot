@@ -49,4 +49,6 @@ MonoBehaviour:
   bloodEffect: {fileID: 166404, guid: 78e1c8c5b281b8b439229473779ac9aa, type: 3}
   explosionEffect_s: {fileID: 1804206099813350, guid: 5ed0a013702bd9f42847584f2fba7b21, type: 3}
   explosionEffect_l: {fileID: 1431530912211830, guid: 585a1ef8c48a0cf4f97332139e4344de, type: 3}
+  deadBloodEffect: {fileID: 7452791600506955946}
   damageNumberUi: {fileID: 4867215944754654713, guid: a558b7f467604a246a8b94fb034f40ee, type: 3}
+  damageUiParent: {fileID: 0}
