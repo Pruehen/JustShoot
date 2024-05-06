@@ -279,7 +279,7 @@ public class Player : SceneSingleton<Player>
         combat.TakeDamage(dmg);
         if(isActive && combat.IsDead())
         {
-            isActive = true;
+            isActive = false;
             SetCamType(false);
         }
     }
