@@ -37,6 +37,7 @@ public class Player : SceneSingleton<Player>
 
     bool isReload = false;
     bool isActive = false;
+    bool onPlay = false;
 
     public PlayerCombat combat;
     PlayerCombatData data = new PlayerCombatData();
@@ -75,6 +76,8 @@ public class Player : SceneSingleton<Player>
         usingWeapons.Add(weaponsList[weaponIndex3]);
 
         isActive = true;
+        onPlay = true;
+        WeaponChange(0);
     }
 
     // Start is called before the first frame update
@@ -111,7 +114,7 @@ public class Player : SceneSingleton<Player>
 
             SetCombatData();
         }
-        else
+        else if(onPlay)
         {
             DeadCamMove();
         }
