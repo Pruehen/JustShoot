@@ -102,9 +102,8 @@ public class MutantEnemy : BaseEnemy
 
         Vector3 enemyToPlayerDir = (-transform.position + player.transform.position).normalized;
         //참고 https://www.falstad.com/dotproduct/
-        bool inAttackDirection = Vector3.Dot(transform.forward, enemyToPlayerDir) > .8f; // dot product 로 적이 보는 방향과 적의 위치까지의 방향이 비슷하면 데미지
 
-        bool damagable = closeEnogh && inAttackDirection;
+        bool damagable = closeEnogh;
 
         if (damagable)//Todo: 공격 거리 계산을 다시 하고 싶을 수 있음
         {
@@ -174,6 +173,10 @@ public class MutantEnemy : BaseEnemy
             {
                 owner.animator.SetBool(owner.hashMoving, false);
             }
+            if(owner.isGrouonded)
+            {
+                owner.animator.SetBool(owner.hashIsAlmostTarget, true);
+            }
 
         }
     }
@@ -193,7 +196,6 @@ public class MutantEnemy : BaseEnemy
             prevPlayerPos = SentinelVec;
         }
         Vector3 prevPlayerPos = Vector3.positiveInfinity;
-        bool firstTouchGround = false;
         public override void FixedUpdate()
         {
             Vector3 pos = owner.transform.position;
@@ -218,25 +220,25 @@ public class MutantEnemy : BaseEnemy
                 {
                     owner.animator.SetBool(owner.hashIsAlmostTarget, true);
                 }
+                else
+                {
+                    float deltaDist = (curPlayerPos - prevPlayerPos).magnitude;
+                    Vector3 targetDir = (-owner.rb.position + owner.playerTrf.position).normalized;
+                    Vector3 targetDirH = targetDir;
+                    targetDirH.y = 0f;
+                    targetDirH = targetDirH.normalized;
 
+                    Vector3 velocityH = owner.rb.velocity;
+                    velocityH.y = 0f;
+                    float velocityHMag = velocityH.magnitude;
 
-                float deltaDist = (curPlayerPos - prevPlayerPos).magnitude;
-                Vector3 targetDir = (-owner.rb.position + owner.playerTrf.position).normalized;
-                Vector3 targetDirH = targetDir;
-                targetDirH.y = 0f;
-                targetDirH = targetDirH.normalized;
+                    Vector3 newVelocityH = targetDirH * velocityHMag;
 
-                Vector3 velocityH = owner.rb.velocity;
-                velocityH.y = 0f;
-                float velocityHMag = velocityH.magnitude;
+                    Vector3 result = new Vector3(newVelocityH.x, owner.rb.velocity.y, newVelocityH.z);
+                    result += targetDirH * deltaDist * .5f;
 
-                Vector3 newVelocityH = targetDirH * velocityHMag;
-
-                Vector3 result = new Vector3(newVelocityH.x, owner.rb.velocity.y, newVelocityH.z);
-                result += targetDirH * deltaDist;
-
-                owner.rb.velocity = result;
-
+                    owner.rb.velocity = result;
+                }
                 prevPlayerPos = curPlayerPos;
             }
             else
