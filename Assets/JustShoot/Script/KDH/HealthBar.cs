@@ -13,7 +13,7 @@ public class HealthBar : MonoBehaviour
     {
         slider = GetComponent<Slider>();
         data = Player.Instance.GetCombatData();
-        SetMaxHP(data.playerMaxHp);
+        SetMaxHP(100);
     }
 
     void Update()

@@ -5,7 +5,7 @@ using UnityEngine;
 public class RollWeapon : MonoBehaviour
 {
 
-    public float rotatePower = 10f;
+    public float rotatePower = 80f;
     // Start is called before the first frame update
     void Start()
     {
