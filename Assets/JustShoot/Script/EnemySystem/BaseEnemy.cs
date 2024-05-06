@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class BaseEnemy : MonoBehaviour, IDamagable
 {
     public GameObject hitSFX;
-    public EnemyCombat combat;
+    public EnemyCombat combat = new EnemyCombat();
 
     public bool isDie = false;
     [SerializeField] protected Player player;

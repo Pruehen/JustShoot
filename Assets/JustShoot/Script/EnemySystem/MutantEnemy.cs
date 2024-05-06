@@ -30,7 +30,7 @@ public class MutantEnemy : BaseEnemy
         base.Awake();
         rb = GetComponent<Rigidbody>();
 
-        combat = new EnemyCombat(transform, maxHp);
+        combat.Init(transform, maxHp);
 
         statemachine = gameObject.AddComponent<Statemachine>();
         statemachine.AddState(State.IDLE, new IdleState(this));
@@ -89,6 +89,8 @@ public class MutantEnemy : BaseEnemy
         rb.velocity = ProjectileCalc.CalcLaunch(transform.position, playerTrf.position, angleV);
         animator.SetBool(hashIsAlmostTarget, false);
         gameObject.layer = LayerMask.NameToLayer("EnemyProjectile");
+
+        audioSource.PlayOneShot(attackSFX);
     }
 
     //적 공격 애니메이션에서 실행됨
@@ -155,10 +157,10 @@ public class MutantEnemy : BaseEnemy
         {
             owner.agent.SetDestination(owner.playerTrf.position);
 
+            owner.agent.nextPosition = owner.transform.position;
             owner.agent.updatePosition = true;
             owner.agent.updateRotation = true;
             owner.agent.isStopped = false;
-            owner.agent.nextPosition = owner.transform.position;
             owner.animator.SetBool(owner.hashTrace, true);
             owner.animator.SetBool(owner.hashAttack, false);
         }
@@ -190,6 +192,7 @@ public class MutantEnemy : BaseEnemy
         {
             owner.animator.SetBool(owner.hashTrace, true);
             owner.animator.SetBool(owner.hashAttack, true);
+            owner.agent.nextPosition = owner.transform.position;
             owner.agent.updatePosition = false;
             owner.agent.updateRotation = false;
             owner.agent.isStopped = true;
@@ -255,6 +258,7 @@ public class MutantEnemy : BaseEnemy
         public override void Enter()
         {
             owner.animator.SetTrigger(owner.hashDead);
+            owner.audioSource.PlayOneShot(owner.deadSFX);
         }
     }
 }

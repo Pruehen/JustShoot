@@ -15,9 +15,9 @@ public class Combat
     [SerializeField] private float _maxHp = 100f;
     [SerializeField] private float _hp = 100f;
     [SerializeField] private bool _dead = false;
-    [SerializeField] private float _invincibleTime = .1f;
+    [SerializeField] protected float _invincibleTime = .1f;
     [SerializeField] private float _prevHitTime = 0f;
-    private bool _defalutEffectOnDamaged;
+    private bool _defalutEffectOnDamaged = true;
 
     public System.Action OnDamaged { get; set; }
     public System.Action<float> OnDamagedWDamage { get; set; }
@@ -29,13 +29,12 @@ public class Combat
 
     public GameObject[] additionalEffectOnHit;
     public Vector3 prevAttackersPos { get; internal set; }
-    public Combat(Transform owner, float maxHp, bool defaultEffectOnDamaged = true)
+    public virtual void Init(Transform owner, float maxHp)
     {
-        _owner = owner;
-        _maxHp = maxHp;
+        this._owner = owner;
+        this._maxHp = maxHp;
         initalMaxHp = _maxHp;
         _hp = _maxHp;
-        _defalutEffectOnDamaged = defaultEffectOnDamaged;
     }
     public float GetHp() { return _hp; }
     public void SetMaxHp(float maxHp)
