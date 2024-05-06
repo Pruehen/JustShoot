@@ -1,47 +1,35 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class MutantEnemy : MonoBehaviour
+public class MutantEnemy : BaseEnemy
 {
-    [SerializeField] protected Player player;
-    private Combat combat = new Combat();
     public enum State
     {
         IDLE, TRACE, LAUNCH, HOMING, ATTACK, DEAD
     }
     public State state = State.IDLE;
 
+
     public float traceDistance = 9999f;
     public float attackDistance = 16f;
-    public float DamageDistance = 1f;
+    public float damageDistance = 1f;
     public float aimRotateSpeed = 30f;
+    public float maxHp = 300f;
 
-    public bool isDie = false;
-
-    Transform enemyTrf;
-    [SerializeField] Transform playerTrf;
-    NavMeshAgent agent;
-    Animator animator;
-    Statemachine statemachine;
     Rigidbody rb;
 
-    readonly int hashTrace = Animator.StringToHash("IsTrace");
-    readonly int hashAttack = Animator.StringToHash("IsAttack");
-    readonly int hashLaunch = Animator.StringToHash("Launch");
-    readonly int hashHoming = Animator.StringToHash("IsHoming");
-    readonly int hashHit = Animator.StringToHash("Hit");
-    readonly int hashMoving = Animator.StringToHash("IsMoving");
-    readonly int hashDead = Animator.StringToHash("Dead");
-    private void Awake()
+    readonly int hashIsAlmostTarget = Animator.StringToHash("IsAlmostTarget"); 
+
+    bool isGrouonded = false;
+    protected override void Awake()
     {
-        player = Player.Instance;
-        playerTrf = player.transform;
-        enemyTrf = GetComponent<Transform>();
-        agent = GetComponent<NavMeshAgent>();
-        animator = GetComponent<Animator>();
+        base.Awake();
         rb = GetComponent<Rigidbody>();
+
+        combat = new EnemyCombat(transform, maxHp);
 
         statemachine = gameObject.AddComponent<Statemachine>();
         statemachine.AddState(State.IDLE, new IdleState(this));
@@ -52,16 +40,15 @@ public class MutantEnemy : MonoBehaviour
 
         agent.destination = playerTrf.position;
     }
-    private void Start()
+    protected override void Start()
     {
-        combat.Init(transform, 100f);
-
-        combat.OnDamaged += PlayHitAnim;
-        combat.OnDamagedWDamage += Player.Instance.combat.AddDealCount;
-        combat.OnDead += Player.Instance.combat.AddKillCount;
-        combat.OnDead += Dead;
+        base.Start();
 
         StartCoroutine(CheckEnemyState());
+    }
+    private void FixedUpdate()
+    {
+        isGrouonded = Physics.Raycast(transform.position, -Vector3.up, .3f);
     }
     protected virtual IEnumerator CheckEnemyState()
     {
@@ -73,36 +60,43 @@ public class MutantEnemy : MonoBehaviour
             if (distance <= attackDistance || animator.GetCurrentAnimatorStateInfo(0).IsName("MutantJumpAttack") || agent.isOnNavMesh == false)
             {
                 statemachine.ChangeState(State.ATTACK);
+                state = State.ATTACK;
             }
             else if (distance <= traceDistance)
             {
                 statemachine.ChangeState(State.TRACE);
+                state = State.TRACE;
             }
             else
             {
                 statemachine.ChangeState(State.IDLE);
+                state = State.IDLE;
             }
         }
         statemachine.ChangeState(State.DEAD);
+        state = State.DEAD;
     }
 
 
     //적 공격 애니메이션에서 실행됨
     private void OnAnimationLaunch()
     {
-        float timeScaleFactor = 0.3f;
-        float distance = (playerTrf.position - transform.position).magnitude;
-        float timeToTarget = distance * timeScaleFactor;
-        Vector3 initialVelocity = ProjectileCalc.CalculateInitialVelocity(transform.position, playerTrf.position, timeToTarget, Physics.gravity.y);
-        rb.velocity = initialVelocity;  
+
+        Vector3 targetDir = (-transform.position + playerTrf.position).normalized;
+        float angleV = Mathf.Atan2(targetDir.y, 1f);
+        angleV = Mathf.Rad2Deg * angleV;
+        angleV = (angleV > -15f) ? angleV + 30f : -angleV;
+        rb.velocity = ProjectileCalc.CalcLaunch(transform.position, playerTrf.position, angleV);
+        animator.SetBool(hashIsAlmostTarget, false);
     }
 
     //적 공격 애니메이션에서 실행됨
     private void OnAimationAttak()
     {
+        animator.SetBool(hashIsAlmostTarget, false);
         //DealDamage
         float distance = Vector3.Distance(player.transform.position, transform.position);
-        bool closeEnogh = distance <= DamageDistance;
+        bool closeEnogh = distance <= damageDistance;
 
         Vector3 enemyToPlayerDir = (-transform.position + player.transform.position).normalized;
         //참고 https://www.falstad.com/dotproduct/
@@ -119,21 +113,16 @@ public class MutantEnemy : MonoBehaviour
             EffectManager.Instance.HitEffectGenenate(hitPosition, type);//착탄 이펙트 발생
         }
     }
-    public void TakeDamage(float damage)
-    {
-        if (combat.TakeDamage(damage))
-        {
-            animator.SetTrigger(hashHit);
-        }
-    }
-    private void PlayHitAnim()
-    {
-        animator.SetTrigger(hashHit);
-    }
-    private void Dead()
+
+    protected override void Dead()
     {
         isDie = true;
+
+        col.enabled = false;
+        
+        StartCoroutine(ReturnToPool());
     }
+
     class BaseEnemyState : BaseState
     {
         protected MutantEnemy owner;
@@ -162,11 +151,12 @@ public class MutantEnemy : MonoBehaviour
         {
             owner.agent.SetDestination(owner.playerTrf.position);
 
-            owner.agent.isStopped = false;
-            owner.animator.SetBool(owner.hashTrace, true);
-            owner.animator.SetBool(owner.hashAttack, false);
             owner.agent.updatePosition = true;
             owner.agent.updateRotation = true;
+            owner.agent.isStopped = false;
+            owner.agent.nextPosition = owner.transform.position;
+            owner.animator.SetBool(owner.hashTrace, true);
+            owner.animator.SetBool(owner.hashAttack, false);
         }
         public override void Update()
         {
@@ -186,23 +176,68 @@ public class MutantEnemy : MonoBehaviour
     {
         public AttackState(MutantEnemy owner) : base(owner) { }
 
+
+        Vector3 SentinelVec = new Vector3(-9999f, -9999f, -9999f);
         public override void Enter()
         {
             owner.animator.SetBool(owner.hashTrace, true);
             owner.animator.SetBool(owner.hashAttack, true);
             owner.agent.updatePosition = false;
             owner.agent.updateRotation = false;
+            owner.agent.isStopped = true;
+            prevPlayerPos = SentinelVec;
         }
+        Vector3 prevPlayerPos = Vector3.positiveInfinity;
+        bool firstTouchGround = false;
         public override void FixedUpdate()
         {
-            float maxSpeed = 1f;
-            float maxSteeringForce = 1f;
-            Transform target = owner.playerTrf;
-            Vector3 steeringForce = ProjectileCalc.CalculateSteeringForce(owner.transform.position, target.position, owner.rb.velocity, maxSpeed, maxSteeringForce);
-            owner.rb.velocity = ProjectileCalc.ApplySteeringForce(owner.rb.velocity, steeringForce, maxSpeed);
+            Vector3 pos = owner.transform.position;
+            Vector3 target = owner.playerTrf.position;
+            Vector3 desiredDir = -pos + target;
+            float distance = desiredDir.magnitude;
+            desiredDir = new Vector3(desiredDir.x, 0f, desiredDir.z);
+            desiredDir = desiredDir.normalized;
+            owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, Quaternion.LookRotation(desiredDir), Time.deltaTime * owner.aimRotateSpeed);
 
-            // Optionally adjust rotation to face velocity
-            owner.rb.rotation = ProjectileCalc.CalculateRotation(owner.rb.velocity);
+            if (!owner.isGrouonded)
+            {
+                Vector3 curPlayerPos = owner.playerTrf.position;
+                // 초기값
+                if(prevPlayerPos == SentinelVec)
+                    prevPlayerPos = curPlayerPos;
+
+
+                bool isAlmostGrouonded = Physics.Raycast(owner.transform.position, -Vector3.up, .5f);
+                isAlmostGrouonded = isAlmostGrouonded && owner.rb.velocity.y < 0f;
+                if (distance < owner.damageDistance || isAlmostGrouonded)
+                {
+                    owner.animator.SetBool(owner.hashIsAlmostTarget, true);
+                }
+
+
+                float deltaDist = (curPlayerPos - prevPlayerPos).magnitude;
+                Vector3 targetDir = (-owner.rb.position + owner.playerTrf.position).normalized;
+                Vector3 targetDirH = targetDir;
+                targetDirH.y = 0f;
+                targetDirH = targetDirH.normalized;
+
+                Vector3 velocityH = owner.rb.velocity;
+                velocityH.y = 0f;
+                float velocityHMag = velocityH.magnitude;
+
+                Vector3 newVelocityH = targetDirH * velocityHMag;
+
+                Vector3 result = new Vector3(newVelocityH.x, owner.rb.velocity.y, newVelocityH.z);
+                result += targetDirH * deltaDist;
+
+                owner.rb.velocity = result;
+
+                prevPlayerPos = curPlayerPos;
+            }
+            else
+            {
+                prevPlayerPos = SentinelVec;
+            }
         }
     }
     class DeadState : BaseEnemyState

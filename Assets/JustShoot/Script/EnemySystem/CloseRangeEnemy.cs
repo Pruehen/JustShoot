@@ -3,42 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class CloseRangeEnemy : BaseEnemy, IDamagable
+public class CloseRangeEnemy : BaseEnemy
 {
-    [SerializeField] protected Player player;
-    private Combat combat = new Combat();
     public enum State
     {
         IDLE, TRACE, ATTACK, DEAD
     }
     public State state = State.IDLE;
 
-    public float traceDistance = 10;
-    public float attackDistance = 2;
+    public float traceDistance = 9999f;
+    public float attackDistance = 1.5f;
     public float aimRotateSpeed = 30f;
 
-    public bool isDie = false;
+    public float maxHp = 100f;
 
-    Transform enemyTrf;
-    [SerializeField] Transform playerTrf;
-    NavMeshAgent agent;
-    Animator animator;
-    Statemachine statemachine;
-    Collider col;
-
-    readonly int hashTrace = Animator.StringToHash("IsTrace");
-    readonly int hashAttack = Animator.StringToHash("IsAttack");
-    readonly int hashHit = Animator.StringToHash("Hit");
-    readonly int hashMoving = Animator.StringToHash("IsMoving");
-    readonly int hashDead = Animator.StringToHash("Dead");
-    private void Awake()
+    protected override void Awake()
     {
-        player = Player.Instance;
-        playerTrf = player.transform;
-        enemyTrf = GetComponent<Transform>();
-        agent = GetComponent<NavMeshAgent>();
-        animator = GetComponent<Animator>();
-        col = GetComponent<Collider>();
+        base.Awake();
+        combat = new EnemyCombat(transform, maxHp);
 
         statemachine = gameObject.AddComponent<Statemachine>();
         statemachine.AddState(State.IDLE, new IdleState(this));
@@ -49,21 +31,10 @@ public class CloseRangeEnemy : BaseEnemy, IDamagable
 
         agent.destination = playerTrf.position;
     }
-    private void Start()
+    protected override void Start()
     {
-        combat.Init(transform, 100f);
-
-        combat.OnDamaged += PlayHitAnim;
-        combat.OnDamagedWDamage += Player.Instance.combat.AddDealCount;
-        combat.OnDead += Player.Instance.combat.AddKillCount;
-        combat.OnDead += Dead;
-
+        base.Start();
         StartCoroutine(CheckEnemyState());
-    }
-
-    private void OnEnable()
-    {
-        col.enabled = true;
     }
     protected virtual IEnumerator CheckEnemyState()
     {
@@ -92,9 +63,17 @@ public class CloseRangeEnemy : BaseEnemy, IDamagable
         state = State.DEAD;
     }
 
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        audioSource.clip = traceSFX;
+        audioSource.Play();
+    }
+
     //Àû °ø°Ý ¾Ö´Ï¸ÞÀÌ¼Ç¿¡¼­ ½ÇÇàµÊ
     public void OnAimationAttak()
     {
+        audioSource.PlayOneShot(attackSFX);
         //DealDamage
         float distance = Vector3.Distance(player.transform.position, transform.position);
         bool closeEnogh = distance <= attackDistance;
@@ -113,28 +92,6 @@ public class CloseRangeEnemy : BaseEnemy, IDamagable
             Vector3 hitPosition = player.transform.position + Vector3.up;
             EffectManager.Instance.HitEffectGenenate(hitPosition, type);//ÂøÅº ÀÌÆåÆ® ¹ß»ý
         }
-    }
-    public void TakeDamage(float damage)
-    {
-        if (combat.TakeDamage(damage))
-        {
-            animator.SetTrigger(hashHit);
-        }
-    }
-    private void PlayHitAnim()
-    {
-        animator.SetTrigger(hashHit);
-    }
-    private void Dead()
-    {
-        isDie = true;
-        col.enabled = false;
-        StartCoroutine(ReturnToPool());
-    }
-    IEnumerator ReturnToPool()
-    {
-        yield return new WaitForSeconds(15f);
-        ObjectPoolManager.Instance.EnqueueObject(gameObject);
     }
     class BaseEnemyState : BaseState
     {
@@ -219,7 +176,10 @@ public class CloseRangeEnemy : BaseEnemy, IDamagable
         public override void Enter()
         {
             owner.animator.SetTrigger(owner.hashDead);
+            owner.animator.SetBool(owner.hashIsDead, true);
             owner.agent.isStopped = true;
+            owner.audioSource.Stop();
+            owner.audioSource.PlayOneShot(owner.deadSFX);
         }
     }
 }

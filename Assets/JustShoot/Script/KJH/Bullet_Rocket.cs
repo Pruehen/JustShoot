@@ -57,6 +57,7 @@ public class Bullet_Rocket : Bullet
         SplashDamage(hitPosition, 10);
         StartCoroutine(ParticleDestroy());
 
+        SFXManager.Instance.ExplosionSoundOn(hitPosition);
         ObjectPoolManager.Instance.EnqueueObject(this.gameObject);
     }
 

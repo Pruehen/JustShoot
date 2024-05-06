@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +10,8 @@ public class EffectManager : SceneSingleton<EffectManager>
     public GameObject bloodEffect;
     public GameObject explosionEffect_s;
     public GameObject explosionEffect_l;
+    public GameObject damageNumberUi;
+    public Transform damageUiParent;
 
     public void HitEffectGenenate(Vector3 position, int type)
     {
@@ -55,9 +58,17 @@ public class EffectManager : SceneSingleton<EffectManager>
         }
     }
 
-    IEnumerator EnqueueObject(GameObject item, float time)
+    public IEnumerator EnqueueObject(GameObject item, float time)
     {
         yield return new WaitForSeconds(time);
         ObjectPoolManager.Instance.EnqueueObject(item);
+    }
+
+    public void DamageNumberUiGenerate(Transform target, float damage)
+    {
+        GameObject item = ObjectPoolManager.Instance.DequeueObject(damageNumberUi);
+        item.transform.SetParent(damageUiParent);
+        item.transform.GetComponent<DamageNumberUi>().Init(damage.ToString(), target);
+        StartCoroutine(EnqueueObject(item, 1));
     }
 }

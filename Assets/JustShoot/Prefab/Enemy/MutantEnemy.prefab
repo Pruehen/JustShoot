@@ -46,8 +46,8 @@ Rigidbody:
   m_GameObject: {fileID: 4422857859847985603}
   serializedVersion: 2
   m_Mass: 100
-  m_Drag: 1
-  m_AngularDrag: 0.05
+  m_Drag: 0
+  m_AngularDrag: 0
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
@@ -121,13 +121,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b45feb5e962b264382f4e0948b22c9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitSFX: {fileID: 0}
+  combat:
+    _owner: {fileID: 0}
+    initalMaxHp: 0
+    _maxHp: 0
+    _hp: 0
+    _dead: 0
+    _invincibleTime: 0
+    _prevHitTime: 0
+    additionalEffectOnHit: []
+  isDie: 0
   player: {fileID: 0}
+  playerTrf: {fileID: 0}
+  idleSFX: {fileID: 0}
+  traceSFX: {fileID: 0}
+  attackSFX: {fileID: 0}
+  deadSFX: {fileID: 0}
   state: 0
   traceDistance: 999
   attackDistance: 8
+  DamageDistance: 1
   aimRotateSpeed: 30
-  isDie: 0
-  playerTrf: {fileID: 0}
+  maxHp: 300
 --- !u!1 &7982773717380322171
 GameObject:
   m_ObjectHideFlags: 0
