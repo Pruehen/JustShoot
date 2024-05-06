@@ -7,6 +7,7 @@ public class Timer : MonoBehaviour
 {
     public float remainTime = 120.0f;
     TextMeshProUGUI m_TextMeshProUGUI;
+    float resultTime;
     // Start is called before the first frame update
     void Awake()
     {
@@ -21,6 +22,7 @@ public class Timer : MonoBehaviour
             if (remainTime > 0.01f)
                 remainTime -= Time.deltaTime;
         }
+        
 
         UpdateTime();
     }
