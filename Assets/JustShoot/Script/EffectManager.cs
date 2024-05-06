@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class EffectManager : SceneSingleton<EffectManager>
 {
@@ -10,6 +11,8 @@ public class EffectManager : SceneSingleton<EffectManager>
     public GameObject bloodEffect;
     public GameObject explosionEffect_s;
     public GameObject explosionEffect_l;
+    public GameObject deadBloodEffect;
+
     public GameObject damageNumberUi;
     public Transform damageUiParent;
 
@@ -56,6 +59,14 @@ public class EffectManager : SceneSingleton<EffectManager>
             item.transform.rotation = Quaternion.identity;
             StartCoroutine(EnqueueObject(item, 5));
         }
+    }
+    public void DeadEffectGenerate(Vector3 position)//적 사망 시 이 메서드를 호출하면 됨
+    {
+        GameObject item = ObjectPoolManager.Instance.DequeueObject(deadBloodEffect);
+        item.transform.position = position;
+        item.transform.rotation = Quaternion.identity;
+
+        StartCoroutine(EnqueueObject(item, 2));
     }
 
     public IEnumerator EnqueueObject(GameObject item, float time)
