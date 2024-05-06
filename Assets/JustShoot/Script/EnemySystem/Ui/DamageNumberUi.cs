@@ -15,9 +15,9 @@ public class DamageNumberUi : MonoBehaviour
         damageui = GetComponent<TMPro.TMP_Text>();
     }
 
-    public void Init(string text, Transform target)
+    public void Init(float damage, Transform target)
     {
-        damageui.text = text;
+        damageui.text = ((int)damage).ToString();
         this.target = target;
         age = 0f;
         damageui.fontSize = fontSize;
