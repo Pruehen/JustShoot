@@ -39,8 +39,11 @@ public class EnemySpawner : MonoBehaviour
     {
         while (m_Queue.Count > 0)
         {
-            GameObject Enemy = m_Queue.Dequeue();
-            Enemy.SetActive(true);
+            if (Player.Instance.onPlay)
+            {
+                GameObject Enemy = m_Queue.Dequeue();
+                Enemy.SetActive(true);
+            }
 
             yield return new WaitForSeconds(spawnTime);
             //m_Queue.Enqueue(prefabs[0]);

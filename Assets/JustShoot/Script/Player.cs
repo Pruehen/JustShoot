@@ -37,7 +37,7 @@ public class Player : SceneSingleton<Player>
 
     bool isReload = false;
     bool isActive = false;
-    bool onPlay = false;
+    public bool onPlay { get; private set; }
 
     public PlayerCombat combat;
     PlayerCombatData data = new PlayerCombatData();
@@ -59,7 +59,7 @@ public class Player : SceneSingleton<Player>
             }
         }
         tpsVCamRoot.transform.parent = null;
-
+        onPlay = false;
         //WeaponSelect(0, 1, 2);//더미 코드. 무기 선택 UI가 구현되면 이 메서드 호출은 제거할 것
     }
 
