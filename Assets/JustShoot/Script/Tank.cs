@@ -24,7 +24,7 @@ public class Tank : SceneSingleton<Tank>
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (Player.Instance.onTank)
         {
