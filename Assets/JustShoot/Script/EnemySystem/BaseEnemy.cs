@@ -89,9 +89,9 @@ public class BaseEnemy : MonoBehaviour, IDamagable
 
         foreach (var item in rigidbodies)
         {
-            item.gameObject.layer = LayerMask.NameToLayer("Enemy");
+            item.gameObject.layer = LayerMask.NameToLayer("Regdoll");
         }
-        gameObject.layer = LayerMask.NameToLayer("EnemyProjectile");
+        gameObject.layer = LayerMask.NameToLayer("NoBulletCollider");
         isDie = true;
         animator.enabled = false;
         agent.updatePosition = false;
