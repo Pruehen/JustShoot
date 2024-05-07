@@ -17,6 +17,7 @@ public class BaseEnemy : MonoBehaviour, IDamagable
     protected Statemachine statemachine;
     protected Collider col;
     protected AudioSource audioSource;
+    private List<Rigidbody> rigidbodies = new List<Rigidbody>();
 
     protected readonly int hashTrace = Animator.StringToHash("IsTrace");
     protected readonly int hashAttack = Animator.StringToHash("IsAttack");
@@ -39,6 +40,8 @@ public class BaseEnemy : MonoBehaviour, IDamagable
         animator = GetComponent<Animator>();
         col = GetComponent<Collider>();
         audioSource = GetComponent<AudioSource>();
+        GetAllChildComponent(transform, rigidbodies);
+
     }
     protected virtual void Start()
     {
@@ -49,7 +52,13 @@ public class BaseEnemy : MonoBehaviour, IDamagable
     }
     protected virtual void OnEnable()
     {
-        col.enabled = true;
+
+        foreach(var item in rigidbodies)
+        {
+            item.gameObject.layer = LayerMask.NameToLayer("Regdoll");
+        }
+        gameObject.layer = LayerMask.NameToLayer("Enemy");
+
         animator.SetBool(hashIsDead, false);
     }
     public void TakeDamage(float damage)
@@ -66,8 +75,13 @@ public class BaseEnemy : MonoBehaviour, IDamagable
     }
     protected virtual void Dead()
     {
+
+        foreach (var item in rigidbodies)
+        {
+            item.gameObject.layer = LayerMask.NameToLayer("Enemy");
+        }
+        gameObject.layer = LayerMask.NameToLayer("EnemyProjectile");
         isDie = true;
-        col.enabled = false;
         animator.enabled = false;
         agent.updatePosition = false;
         agent.updateRotation = false;
@@ -114,5 +128,19 @@ public class BaseEnemy : MonoBehaviour, IDamagable
     {
         yield return new WaitForSeconds(15f);
         ObjectPoolManager.Instance.EnqueueObject(gameObject);
+    }
+
+    private void GetAllChildComponent<T>(Transform parent, List<T> list) 
+    {
+        T[] res = parent.GetComponentsInChildren<T>();
+        foreach(var item in res)
+        {
+            list.Add(item);
+        }
+
+        if(parent.childCount == 0)
+        {
+            return;
+        }
     }
 }

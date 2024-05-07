@@ -119,9 +119,10 @@ public class MutantEnemy : BaseEnemy
 
     protected override void Dead()
     {
-        StartCoroutine(ReturnToPool());
-        isDie = true;
-        gameObject.layer = LayerMask.NameToLayer("EnemyProjectile");
+        //StartCoroutine(ReturnToPool());
+        //isDie = true;
+        //gameObject.layer = LayerMask.NameToLayer("EnemyProjectile");
+        base.Dead();
     }
 
     protected override IEnumerator ReturnToPool()
