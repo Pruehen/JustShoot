@@ -25,6 +25,11 @@ public class Player : SceneSingleton<Player>
     [SerializeField] CinemachineVirtualCamera tpsVCam;   
     [SerializeField] Transform weaponPoint;
 
+    public Vector3 CamForward()
+    {
+        return tpsVCamRoot.transform.forward;
+    }
+
     [Header("UsingWeapons")]
     [SerializeField] List<Weapon> weaponsList;
     //[SerializeField] int[] usingWeaponsIndex = new int[3];
@@ -37,6 +42,7 @@ public class Player : SceneSingleton<Player>
 
     bool isReload = false;
     bool isActive = false;
+    public bool onTank = false;
     public bool onPlay { get; private set; }
 
     public PlayerCombat combat = new PlayerCombat();
@@ -105,18 +111,38 @@ public class Player : SceneSingleton<Player>
     {
         if (isActive)
         {
-            MoveOrder();//이동  
-            RotateOrder();//캐릭터 및 총기 회전
+            if (!onTank)
+            {
+                MoveOrder();//이동  
+                RotateOrder();//캐릭터 및 총기 회전
 
-            WeaponSelect();
-            //GunFire();//무기 사용
-            //Debug.Log(tpsVCam.transform.position);
+                WeaponSelect();
+                //GunFire();//무기 사용
+                //Debug.Log(tpsVCam.transform.position);
 
-            SetCombatData();
+                SetCombatData();
+            }
+            else
+            {
+                this.transform.position = Tank.Instance.transform.position;
+            }
         }
         else if(onPlay)
         {
             DeadCamMove();
+        }
+
+        float tankDistance = (this.transform.position - Tank.Instance.transform.position).magnitude;
+        if(tankDistance < 6)
+        {
+            if(Input.GetKeyDown(KeyCode.F))
+            {
+                onTank = !onTank;
+                if(onTank == false)
+                {
+                    this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y + 5, this.transform.position.z);
+                }
+            }
         }
     }
     private void LateUpdate()
@@ -140,6 +166,15 @@ public class Player : SceneSingleton<Player>
     }
     void CamRotate()
     {
+        if(onTank)
+        {
+            tpsVCam.transform.localPosition = new Vector3(0, 0, -10);
+        }
+        else
+        {
+            tpsVCam.transform.localPosition = new Vector3(0, 0, -5);
+        }
+
         tpsVCamRoot.transform.position = this.transform.position + new Vector3(0, 1.5f, 0);
 
         Vector3 camAngle = tpsVCamRoot.transform.rotation.eulerAngles;
@@ -302,7 +337,7 @@ public class Player : SceneSingleton<Player>
     }
     void OnLeftClick(InputValue inputValue)//마우스 좌클릭
     {
-        if (isActive)
+        if (isActive && !onTank)
         {
             float isClick = inputValue.Get<float>();
 
@@ -319,7 +354,7 @@ public class Player : SceneSingleton<Player>
     }
     void OnRightClick(InputValue inputValue)//마우스 우클릭
     {
-        if (isActive)
+        if (isActive && !onTank)
         {
             float isClick = inputValue.Get<float>();
 
@@ -340,7 +375,7 @@ public class Player : SceneSingleton<Player>
     }
     void OnReload(InputValue inputValue)
     {
-        if (isActive)
+        if (isActive && !onTank)
         {
             float isClick = inputValue.Get<float>();
 

@@ -13,18 +13,11 @@ TagManager:
   - Water
   - UI
   - PlayerProjectile
-<<<<<<< Updated upstream
   - EnemyProjectile
   - Enemy
   - Player
   - HugeEnemy
-=======
-  - 
-  - Minimap
-  - 
-  - 
->>>>>>> Stashed changes
-  - 
+  - Regdoll
   - 
   - 
   - 
