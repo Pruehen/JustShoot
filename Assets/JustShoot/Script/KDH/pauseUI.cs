@@ -27,4 +27,9 @@ public class pauseUI : MonoBehaviour
             }
         }
     }
+
+    void OnResumeClicked()
+    {
+        panel.SetActive(false);
+    }
 }
