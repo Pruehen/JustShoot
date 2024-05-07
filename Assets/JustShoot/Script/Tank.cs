@@ -12,7 +12,7 @@ public class Tank : SceneSingleton<Tank>
     Rigidbody rigidbody;
 
     float movePower = 40;
-    float rotatePower = 10;
+    float rotatePower = 20;
 
     public Transform turret;
     public Transform cannon;
@@ -85,7 +85,7 @@ public class Tank : SceneSingleton<Tank>
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Enemy") && (moveVector != Vector3.zero || rotateVector != Vector3.zero))
+        if (collision.gameObject.CompareTag("Enemy") && (moveVector != Vector3.zero || rotateVector != Vector3.zero) && Player.Instance.onTank)
         {
             collision.gameObject.GetComponent<IDamagable>().TakeDamage(10000);
         }

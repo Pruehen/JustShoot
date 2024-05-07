@@ -4,6 +4,9 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/PolygonBattleRoyale/Scenes/Demo.unity
+    guid: e693fb2e51fa599488a7f68ac51c5c88
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: fda23303641115f4fb6687271f008045, type: 2}
