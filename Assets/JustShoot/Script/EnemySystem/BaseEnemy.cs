@@ -30,7 +30,7 @@ public class BaseEnemy : MonoBehaviour, IDamagable
     public AudioClip traceSFX;
     public AudioClip attackSFX;
     public AudioClip deadSFX;
-
+    private SkinnedMeshRenderer skinnedMeshRenderer;
     protected virtual void Awake()
     {
         player = Player.Instance;
@@ -42,6 +42,16 @@ public class BaseEnemy : MonoBehaviour, IDamagable
         audioSource = GetComponent<AudioSource>();
         GetAllChildComponent(transform, rigidbodies);
 
+        SkinnedMeshRenderer[] sms = transform.GetChild(0).GetComponentsInChildren<SkinnedMeshRenderer>();
+        foreach(SkinnedMeshRenderer sms2 in sms)
+        {
+            if(sms2.enabled == true )
+            {
+                skinnedMeshRenderer = sms2;
+                break;
+            }
+        }
+
     }
     protected virtual void Start()
     {
@@ -52,7 +62,7 @@ public class BaseEnemy : MonoBehaviour, IDamagable
     }
     protected virtual void OnEnable()
     {
-
+        skinnedMeshRenderer.updateWhenOffscreen = false;
         foreach(var item in rigidbodies)
         {
             item.gameObject.layer = LayerMask.NameToLayer("Regdoll");
@@ -75,6 +85,7 @@ public class BaseEnemy : MonoBehaviour, IDamagable
     }
     protected virtual void Dead()
     {
+        skinnedMeshRenderer.updateWhenOffscreen = true;
 
         foreach (var item in rigidbodies)
         {
@@ -86,6 +97,8 @@ public class BaseEnemy : MonoBehaviour, IDamagable
         agent.updatePosition = false;
         agent.updateRotation = false;
         EffectManager.Instance.DeadEffectGenerate(transform.position);
+
+
         StartCoroutine(ReturnToPool());
     }
 
