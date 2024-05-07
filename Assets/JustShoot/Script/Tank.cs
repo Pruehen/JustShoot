@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+//using System.Numerics;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class Tank : SceneSingleton<Tank>
 {
@@ -9,8 +11,8 @@ public class Tank : SceneSingleton<Tank>
     Vector3 rotateVector;
     Rigidbody rigidbody;
 
-    float movePower = 30;
-    float rotatePower = 30;
+    float movePower = 40;
+    float rotatePower = 10;
 
     public Transform turret;
     public Transform cannon;
@@ -38,15 +40,19 @@ public class Tank : SceneSingleton<Tank>
     {
         Vector3 direction = camForward.normalized;
 
-        Quaternion rotationWeapon = Quaternion.LookRotation(direction);
-        rotationWeapon = Quaternion.Euler(rotationWeapon.eulerAngles.x, cannon.rotation.eulerAngles.y, rotationWeapon.eulerAngles.z);
-        cannon.rotation = Quaternion.Slerp(cannon.rotation, rotationWeapon, Time.deltaTime * 0.4f);
-
-        direction = new Vector3(direction.x, 0, direction.z);
-
-        Quaternion rotationBody = Quaternion.LookRotation(direction);
+        Vector3 turretdirection = turret.InverseTransformDirection(direction);
+        turretdirection = new Vector3(turretdirection.x, 0, turretdirection.z);        
         //rotationBody = Quaternion.Euler(0, rotationBody.eulerAngles.y, 0);
-        turret.Rotate(Vector3.up, Mathf.Clamp((turret.forward.x - direction.x) * 10, 0, 90 * Time.deltaTime));
+        turret.Rotate(Vector3.up, Mathf.Clamp((turretdirection.x) * 270, -90, 90) * Time.deltaTime);
+
+        if (true)
+        {
+            direction = Quaternion.AngleAxis(-15, cannon.right) * direction;
+            Vector3 cannondirection = cannon.InverseTransformDirection(direction);
+            cannondirection = new Vector3(0, cannondirection.y, 0);
+            //rotationBody = Quaternion.Euler(0, rotationBody.eulerAngles.y, 0);
+            cannon.Rotate(Vector3.right, Mathf.Clamp((-cannondirection.y) * 270, -90, 90) * Time.deltaTime);
+        }
     }
 
     void OnMove(InputValue inputValue)//WASD ¡∂¿€
@@ -74,6 +80,14 @@ public class Tank : SceneSingleton<Tank>
                 isFire = false;
             }
             //controlweapon.SetTrigger(isFire);
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy") && (moveVector != Vector3.zero || rotateVector != Vector3.zero))
+        {
+            collision.gameObject.GetComponent<IDamagable>().TakeDamage(10000);
         }
     }
 }

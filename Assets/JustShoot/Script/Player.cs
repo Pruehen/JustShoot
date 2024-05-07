@@ -337,7 +337,7 @@ public class Player : SceneSingleton<Player>
     }
     void OnLeftClick(InputValue inputValue)//마우스 좌클릭
     {
-        if (isActive)
+        if (isActive && !onTank)
         {
             float isClick = inputValue.Get<float>();
 
@@ -354,7 +354,7 @@ public class Player : SceneSingleton<Player>
     }
     void OnRightClick(InputValue inputValue)//마우스 우클릭
     {
-        if (isActive)
+        if (isActive && !onTank)
         {
             float isClick = inputValue.Get<float>();
 
@@ -375,7 +375,7 @@ public class Player : SceneSingleton<Player>
     }
     void OnReload(InputValue inputValue)
     {
-        if (isActive)
+        if (isActive && !onTank)
         {
             float isClick = inputValue.Get<float>();
 
